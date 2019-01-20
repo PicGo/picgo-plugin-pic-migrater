@@ -1,0 +1,42 @@
+{
+  "name": "picgo-plugin-pic-migrater",
+  "version": "1.0.0",
+  "description": "A PicGo plugin for migrating pictures from markdown files",
+  "main": "dist/index.js",
+  "publishConfig": {
+    "access": "public"
+  },
+  "homepage": "https://github.com/PicGo/picgo-plugin-pic-migrater",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "tsc -p .",
+    "dev": "tsc -w -p .",
+    "patch": "npm version patch && git push origin master && git push origin --tags",
+    "minor": "npm version minor && git push origin master && git push origin --tags",
+    "major": "npm version major && git push origin master && git push origin --tags"
+  },
+  "keywords": [
+    "picgo",
+    "picgo-gui-plugin",
+    "picgo-plugin"
+  ],
+  "author": "Molunerfinn",
+  "license": "MIT",
+  "devDependencies": {
+    "@types/node": "^10.10.1",
+    "eslint": "^5.0.1",
+    "eslint-config-standard": "^11.0.0",
+    "eslint-plugin-import": "^2.13.0",
+    "eslint-plugin-node": "^6.0.1",
+    "eslint-plugin-promise": "^3.8.0",
+    "eslint-plugin-standard": "^3.1.0",
+    "picgo": "^1.2.0",
+    "tslint": "^5.10.0",
+    "tslint-config-standard": "^7.1.0",
+    "typescript": "^3.0.3"
+  },
+  "dependencies": {
+    "globby": "^9.0.0",
+    "probe-image-size": "^4.0.0"
+  }
+}

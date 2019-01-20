@@ -1,0 +1,137 @@
+import picgo from 'picgo'
+import fs from 'fs'
+import path from 'path'
+import probe from 'probe-image-size'
+import { MigrateResult } from './interface'
+
+class Migrater {
+  ctx: picgo
+  guiApi: any
+  urlList: any
+  urlArray: any[]
+  baseDir: string
+  constructor (ctx: picgo, filePath: string) {
+    this.ctx = ctx
+    this.baseDir = path.dirname(filePath)
+    console.log(filePath, this.baseDir)
+  }
+
+  init (urlList: any) {
+    this.urlList = urlList
+    this.urlArray = Object.keys(urlList)
+  }
+
+  async migrate (): Promise<MigrateResult> {
+    let input = []
+    this.ctx.setConfig({
+      'picBed.transformer': 'base64'
+    })
+    for (let i in this.urlArray) {
+      try {
+        let uploadData
+        let picPath = this.getLocalPath(this.urlArray[i])
+        if (!picPath) {
+          uploadData = await this.handlePicFromURL(this.urlArray[i])
+        } else {
+          uploadData = await this.handlePicFromLocal(picPath, this.urlArray[i])
+        }
+        if (uploadData) {
+          input.push(uploadData)
+        }
+      } catch (e) {
+        console.log(e)
+      }
+    }
+    if (input.length > 0) { // ensure there are available pics
+      await this.ctx.upload(input)
+      for (let item of this.ctx.output) {
+        if (this.urlList[item.origin]) {
+          if (item.imgUrl) {
+            console.log('item:', item)
+            this.urlList[item.origin] = item.imgUrl
+          }
+        }
+      }
+    }
+    // console.log(this.urlList)
+    let result = {
+      urlList: Object.assign({}, this.urlList),
+      result: {
+        success: this.calcSuccessLength(),
+        total: this.urlArray.length
+      }
+    }
+    this.clean()
+    return result
+  }
+
+  getLocalPath (imgPath: string) {
+    if (fs.existsSync(imgPath)) {
+      return imgPath
+    } else if (fs.existsSync(path.join(this.baseDir, imgPath))) {
+      return path.join(this.baseDir, imgPath)
+    } else {
+      return false
+    }
+  }
+
+  getPicFromURL (url) {
+    return this.ctx.Request.request({
+      url,
+      encoding: null
+    })
+  }
+
+  async handlePicFromLocal (picPath: string, origin: string) {
+    if (fs.existsSync(picPath)) {
+      let fileName = path.basename(picPath)
+      let buffer = fs.readFileSync(picPath)
+      let imgSize = probe.sync(buffer)
+      return {
+        buffer,
+        fileName,
+        width: imgSize.width,
+        height: imgSize.height,
+        extname: path.extname(picPath),
+        origin
+      }
+    } else {
+      return false
+    }
+  }
+
+  async handlePicFromURL (url: string) {
+    try {
+      let buffer = await this.getPicFromURL(url)
+      let fileName = path.basename(url)
+      let imgSize = probe.sync(buffer)
+      return {
+        buffer,
+        fileName,
+        width: imgSize.width,
+        height: imgSize.height,
+        extname: `.${imgSize.type}`,
+        origin: url
+      }
+    } catch (e) {
+      return false
+    }
+  }
+
+  calcSuccessLength () {
+    let count = 0
+    for (let i in this.urlList) {
+      if (this.urlList[i] !== i) {
+        count += 1
+      }
+    }
+    return count
+  }
+
+  clean () {
+    this.urlArray = []
+    this.urlList = {}
+  }
+}
+
+export default Migrater
