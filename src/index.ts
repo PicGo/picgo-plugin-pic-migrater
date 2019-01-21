@@ -17,13 +17,17 @@ const handleFiles = async (ctx: picgo, files: string[]) => {
 
     // migrate pics
     const result = await migrater.migrate()
-    let content = fileHandler.getFileContent(file)
-
-    // replace content
-    for (let originUrl in result.urlList) {
-      content = content.replace(new RegExp(originUrl, 'g'), result.urlList[originUrl])
+    if (result.result.success === 0) {
+      ctx.log.warn(`Please check your configuration, since no images migrated successfully in ${file}`)
+      continue
+    } else {
+      let content = fileHandler.getFileContent(file)
+      // replace content
+      for (let originUrl in result.urlList) {
+        content = content.replace(new RegExp(originUrl, 'g'), result.urlList[originUrl])
+      }
+      fileHandler.write(file, content)
     }
-    fileHandler.write(file, content)
   }
 }
 
@@ -119,7 +123,6 @@ export = (ctx: picgo) => {
               return
             }
             files = files.map(item => path.resolve(item))
-            console.log('files', files)
             let inputFiles = []
             for (let filePath of files) {
               // make sure filePath exists
@@ -127,7 +130,6 @@ export = (ctx: picgo) => {
                 let status = fs.statSync(filePath)
                 if (status.isDirectory()) {
                   let mdFiles = await globby(['**/*.md'], { cwd: filePath, dot: true })
-                  console.log('mdFiles', mdFiles)
                   mdFiles = mdFiles.map((file: string) => path.resolve(filePath, file))
                   inputFiles = inputFiles.concat(mdFiles)
                 } else if (status.isFile()) {
