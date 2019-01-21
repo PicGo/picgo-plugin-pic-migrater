@@ -35,10 +35,10 @@ class FileHandler {
     }
   }
 
-  write (file: string, data: string, newName = '_new') {
+  write (file: string, data: string, newPrefix = '_new') {
     const baseName = path.basename(file, '.md')
     const dirName = path.dirname(file)
-    const resultFileName = path.join(dirName, baseName + newName + '.md')
+    const resultFileName = path.join(dirName, baseName + newPrefix + '.md')
     try {
       fs.writeFileSync(resultFileName, data, 'utf8')
       this.ctx.log.success(`Write ${resultFileName} successfully`)
@@ -61,11 +61,6 @@ class FileHandler {
 
   getFileContent (file: string) {
     return this.fileList[file]
-  }
-
-  clean () {
-    this.fileList = {}
-    this.urlList = {}
   }
 }
 

@@ -3,6 +3,7 @@ import fs from 'fs'
 import path from 'path'
 import probe from 'probe-image-size'
 import { MigrateResult } from './interface'
+import { ImgInfo } from 'picgo/dist/utils/interfaces'
 
 class Migrater {
   ctx: picgo
@@ -26,9 +27,10 @@ class Migrater {
     this.ctx.setConfig({
       'picBed.transformer': 'base64'
     })
+    this.ctx.output = [] // a bug before picgo v1.2.2
     for (let i in this.urlArray) {
       try {
-        let uploadData
+        let uploadData: ImgInfo | Boolean
         let picPath = this.getLocalPath(this.urlArray[i])
         if (!picPath) {
           uploadData = await this.handlePicFromURL(this.urlArray[i])
@@ -61,7 +63,6 @@ class Migrater {
         total: this.urlArray.length
       }
     }
-    this.clean()
     return result
   }
 
@@ -126,11 +127,6 @@ class Migrater {
       }
     }
     return count
-  }
-
-  clean () {
-    this.urlArray = []
-    this.urlList = {}
   }
 }
 

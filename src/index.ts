@@ -3,9 +3,12 @@ import FileHandler from './lib/FileHandler'
 import Migrater from './lib/Migrater'
 import globby from 'globby'
 import path from 'path'
+import { PluginConfig } from 'picgo/dist/utils/interfaces'
+import fs from 'fs'
 
-const handleFiles = async (ctx: picgo, files: string[], fileHandler: FileHandler) => {
+const handleFiles = async (ctx: picgo, files: string[]) => {
   for (let file of files) {
+    const fileHandler = new FileHandler(ctx)
     // read File
     fileHandler.read(file)
 
@@ -25,11 +28,17 @@ const handleFiles = async (ctx: picgo, files: string[], fileHandler: FileHandler
 }
 
 const guiMenu = (ctx: picgo) => {
-  const fileHandler = new FileHandler(ctx)
   return [
     {
       label: '选择文件',
       async handle (ctx: picgo, guiApi: any) {
+        let userConfig = ctx.getConfig('picgo-plugin-pic-migrater')
+        if (!userConfig) {
+          return guiApi.showNotification({
+            title: '请先进行配置',
+            body: '点击配置plugin，配置插件之后方可使用'
+          })
+        }
         try {
           const files = await guiApi.showFileExplorer({
             properties: ['openFile', 'multiSelections'],
@@ -41,7 +50,7 @@ const guiMenu = (ctx: picgo) => {
             ]
           })
           if (files) {
-            handleFiles(ctx, files, fileHandler)
+            handleFiles(ctx, files)
           } else {
             return false
           }
@@ -52,7 +61,14 @@ const guiMenu = (ctx: picgo) => {
     },
     {
       label: '选择文件夹',
-      async handle (ctx: picgo, guiApi) {
+      async handle (ctx: picgo, guiApi: any) {
+        let userConfig = ctx.getConfig('picgo-plugin-pic-migrater')
+        if (!userConfig) {
+          return guiApi.showNotification({
+            title: '请先进行配置',
+            body: '点击配置plugin，配置插件之后方可使用'
+          })
+        }
         const result = await guiApi.showFileExplorer({
           properties: ['openDirectory']
         })
@@ -61,7 +77,7 @@ const guiMenu = (ctx: picgo) => {
           let files = await globby(['**/*.md'], { cwd: sourceDir, dot: true })
           files = files.map(file => path.join(sourceDir, file))
           if (files.length > 0) {
-            handleFiles(ctx, files, fileHandler)
+            handleFiles(ctx, files)
           }
         } else {
           return false
@@ -71,12 +87,80 @@ const guiMenu = (ctx: picgo) => {
   ]
 }
 
+const config = (ctx: picgo): PluginConfig[] => {
+  let userConfig = ctx.getConfig('picgo-plugin-pic-migrater')
+  if (!userConfig) {
+    userConfig = {}
+  }
+  const config = [
+    {
+      name: 'newFilePrefix',
+      type: 'input',
+      default: userConfig.newFilePrefix || '_new',
+      required: false
+    }
+  ]
+
+  return config
+}
+
 export = (ctx: picgo) => {
   const register = () => {
-    return
+    ctx.cmd.register('migrate', {
+      handle (ctx: picgo) {
+        ctx.cmd.program
+          .command('migrate <files...>')
+          .description('migrating pictures url from markdown files')
+          .action(async (files: string[]) => {
+            let userConfig = ctx.getConfig('picgo-plugin-pic-migrater')
+            if (!userConfig) {
+              ctx.log.warn('You should configurate this plugin first!')
+              ctx.log.info('picgo set plugin pic-migrater')
+              return
+            }
+            files = files.map(item => path.resolve(item))
+            console.log('files', files)
+            let inputFiles = []
+            for (let filePath of files) {
+              // make sure filePath exists
+              if (fs.existsSync(filePath)) {
+                let status = fs.statSync(filePath)
+                if (status.isDirectory()) {
+                  let mdFiles = await globby(['**/*.md'], { cwd: filePath, dot: true })
+                  console.log('mdFiles', mdFiles)
+                  mdFiles = mdFiles.map((file: string) => path.resolve(filePath, file))
+                  inputFiles = inputFiles.concat(mdFiles)
+                } else if (status.isFile()) {
+                  inputFiles.push(filePath)
+                }
+              }
+            }
+            if (inputFiles.length > 0) {
+              console.log(inputFiles)
+              handleFiles(ctx, inputFiles)
+            }
+          })
+          .on('--help', () => {
+            console.log()
+            console.log('Note:')
+            console.log('You should configurate this plugin first!')
+            console.log('picgo set plugin pic-migrater')
+            console.log()
+            console.log('Examples:')
+            console.log()
+            console.log('  # migrate file or files')
+            console.log('  $ picgo migrate ./test.md ./test1.md')
+            console.log()
+            console.log('  # migrate markdown files in folder')
+            console.log('  $ picgo migrate ./test/')
+            console.log()
+          })
+      }
+    })
   }
   return {
     register,
+    config,
     guiMenu
   }
 }
