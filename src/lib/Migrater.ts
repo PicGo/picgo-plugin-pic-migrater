@@ -14,7 +14,6 @@ class Migrater {
   constructor (ctx: picgo, filePath: string) {
     this.ctx = ctx
     this.baseDir = path.dirname(filePath)
-    console.log(filePath, this.baseDir)
   }
 
   init (urlList: any) {
@@ -49,13 +48,11 @@ class Migrater {
       for (let item of this.ctx.output) {
         if (this.urlList[item.origin]) {
           if (item.imgUrl) {
-            console.log('item:', item)
             this.urlList[item.origin] = item.imgUrl
           }
         }
       }
     }
-    // console.log(this.urlList)
     let result = {
       urlList: Object.assign({}, this.urlList),
       result: {
@@ -67,10 +64,11 @@ class Migrater {
   }
 
   getLocalPath (imgPath: string) {
+    if (!path.isAbsolute(imgPath)) {
+      imgPath = path.join(this.baseDir, imgPath)
+    }
     if (fs.existsSync(imgPath)) {
       return imgPath
-    } else if (fs.existsSync(path.join(this.baseDir, imgPath))) {
-      return path.join(this.baseDir, imgPath)
     } else {
       return false
     }

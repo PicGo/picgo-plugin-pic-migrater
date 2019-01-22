@@ -6,7 +6,16 @@ import path from 'path'
 import { PluginConfig } from 'picgo/dist/utils/interfaces'
 import fs from 'fs'
 
-const handleFiles = async (ctx: picgo, files: string[]) => {
+const handleFiles = async (ctx: picgo, files: string[], guiApi: any = undefined) => {
+  if (guiApi) {
+    guiApi.showNotification({
+      title: `迁移进行中...`,
+      body: '请耐心等待'
+    })
+  }
+  ctx.log.info('Migrating...')
+  let total = 0
+  let success = 0
   for (let file of files) {
     const fileHandler = new FileHandler(ctx)
     // read File
@@ -17,8 +26,16 @@ const handleFiles = async (ctx: picgo, files: string[]) => {
 
     // migrate pics
     const result = await migrater.migrate()
+    total += result.result.total
+    success += result.result.success
     if (result.result.success === 0) {
       ctx.log.warn(`Please check your configuration, since no images migrated successfully in ${file}`)
+      if (guiApi) {
+        guiApi.showNotification({
+          title: `${file}迁移失败！`,
+          body: '迁移图片0成功，请检查是否是URL不存在或者图床配置问题'
+        })
+      }
       continue
     } else {
       let content = fileHandler.getFileContent(file)
@@ -28,6 +45,13 @@ const handleFiles = async (ctx: picgo, files: string[]) => {
       }
       fileHandler.write(file, content)
     }
+  }
+  ctx.log.info(`Success: ${success} pics, Fail: ${total - success} pics`)
+  if (guiApi) {
+    guiApi.showNotification({
+      title: '迁移完成',
+      body: `图片迁移成功：${success}张, 图片迁移失败：${total - success}张`
+    })
   }
 }
 
@@ -54,7 +78,7 @@ const guiMenu = (ctx: picgo) => {
             ]
           })
           if (files) {
-            handleFiles(ctx, files)
+            handleFiles(ctx, files, guiApi)
           } else {
             return false
           }
@@ -79,9 +103,9 @@ const guiMenu = (ctx: picgo) => {
         if (result) {
           let sourceDir = result[0]
           let files = await globby(['**/*.md'], { cwd: sourceDir, dot: true })
-          files = files.map(file => path.join(sourceDir, file))
+          files = files.map((file: string) => path.join(sourceDir, file))
           if (files.length > 0) {
-            handleFiles(ctx, files)
+            handleFiles(ctx, files, guiApi)
           }
         } else {
           return false
@@ -138,7 +162,6 @@ export = (ctx: picgo) => {
               }
             }
             if (inputFiles.length > 0) {
-              console.log(inputFiles)
               handleFiles(ctx, inputFiles)
             }
           })
