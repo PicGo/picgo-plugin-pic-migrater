@@ -21,7 +21,7 @@ jobs:
         - npm run build
       deploy:
         provider: npm
-        email: ""
+        email: "marksz@teamsz.xyz"
         api_key: "${NPM_TOKEN}"
         skip_cleanup: true
         on:
