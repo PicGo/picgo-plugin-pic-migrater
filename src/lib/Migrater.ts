@@ -27,17 +27,27 @@ class Migrater {
       'picBed.transformer': 'base64'
     })
     this.ctx.output = [] // a bug before picgo v1.2.2
+    const include: string | null = this.ctx.getConfig('picgo-plugin-pic-migrater.include') || null
+    const exclude: string | null = this.ctx.getConfig('picgo-plugin-pic-migrater.exclude') || null
+    const includesReg = new RegExp(include)
+    const excludesReg = new RegExp(exclude)
+    let uploadCount: number = 0
     for (let i in this.urlArray) {
       try {
-        let uploadData: ImgInfo | Boolean
-        let picPath = this.getLocalPath(this.urlArray[i])
-        if (!picPath) {
-          uploadData = await this.handlePicFromURL(this.urlArray[i])
-        } else {
-          uploadData = await this.handlePicFromLocal(picPath, this.urlArray[i])
-        }
-        if (uploadData) {
-          input.push(uploadData)
+        if (!include || includesReg.test(this.urlArray[i])) {
+          if (!exclude || !excludesReg.test(this.urlArray[i])) {
+            uploadCount++
+            let uploadData: ImgInfo | Boolean
+            let picPath = this.getLocalPath(this.urlArray[i])
+            if (!picPath) {
+              uploadData = await this.handlePicFromURL(this.urlArray[i])
+            } else {
+              uploadData = await this.handlePicFromLocal(picPath, this.urlArray[i])
+            }
+            if (uploadData) {
+              input.push(uploadData)
+            }
+          }
         }
       } catch (e) {
         console.log(e)
@@ -57,7 +67,7 @@ class Migrater {
       urlList: Object.assign({}, this.urlList),
       result: {
         success: this.calcSuccessLength(),
-        total: this.urlArray.length
+        total: uploadCount
       }
     }
     return result

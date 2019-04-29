@@ -28,7 +28,7 @@ const handleFiles = async (ctx: picgo, files: string[], guiApi: any = undefined)
     const result = await migrater.migrate()
     total += result.result.total
     success += result.result.success
-    if (result.result.success === 0) {
+    if (result.result.success === 0 && (result.result.total !== 0)) {
       ctx.log.warn(`Please check your configuration, since no images migrated successfully in ${file}`)
       if (guiApi) {
         guiApi.showNotification({
@@ -123,8 +123,23 @@ const config = (ctx: picgo): PluginConfig[] => {
   const config = [
     {
       name: 'newFilePrefix',
+      alias: '文件名前缀',
       type: 'input',
       default: userConfig.newFilePrefix || '_new',
+      required: false
+    },
+    {
+      name: 'include',
+      alias: '只包含',
+      type: 'input',
+      default: userConfig.include || '',
+      required: false
+    },
+    {
+      name: 'exclude',
+      alias: '不包含',
+      type: 'input',
+      default: userConfig.exclude || '',
       required: false
     }
   ]
