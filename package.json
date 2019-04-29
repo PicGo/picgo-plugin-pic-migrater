@@ -1,6 +1,6 @@
 {
   "name": "picgo-plugin-pic-migrater",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "A PicGo plugin for pictures in markdown files migrating from one picBed to another one.",
   "main": "dist/index.js",
   "publishConfig": {
@@ -33,7 +33,9 @@
     }
   },
   "commitlint": {
-    "extends": ["./node_modules/@picgo/bump-version/commitlint-picgo"]
+    "extends": [
+      "./node_modules/@picgo/bump-version/commitlint-picgo"
+    ]
   },
   "author": "Molunerfinn",
   "license": "MIT",
