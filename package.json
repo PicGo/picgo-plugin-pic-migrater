@@ -11,25 +11,46 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "tsc -p .",
     "dev": "tsc -w -p .",
-    "patch": "npm version patch && git push origin master && git push origin --tags",
-    "minor": "npm version minor && git push origin master && git push origin --tags",
-    "major": "npm version major && git push origin master && git push origin --tags"
+    "cz": "git-cz",
+    "release": "bump-version"
   },
   "keywords": [
     "picgo",
     "picgo-gui-plugin",
     "picgo-plugin"
   ],
+  "husky": {
+    "hooks": {
+      "commit-msg": "commitlint -E HUSKY_GIT_PARAMS"
+    }
+  },
+  "config": {
+    "commitizen": {
+      "path": "./node_modules/cz-customizable"
+    },
+    "cz-customizable": {
+      "config": "./node_modules/@picgo/bump-version/.cz-config.js"
+    }
+  },
+  "commitlint": {
+    "extends": ["./node_modules/@picgo/bump-version/commitlint-picgo"]
+  },
   "author": "Molunerfinn",
   "license": "MIT",
   "devDependencies": {
+    "@commitlint/cli": "^7.5.2",
+    "@picgo/bump-version": "^1.0.2",
     "@types/node": "^10.10.1",
+    "commitizen": "^3.1.1",
+    "conventional-changelog": "^3.1.4",
+    "cz-customizable": "^6.0.0",
     "eslint": "^5.0.1",
     "eslint-config-standard": "^11.0.0",
     "eslint-plugin-import": "^2.13.0",
     "eslint-plugin-node": "^6.0.1",
     "eslint-plugin-promise": "^3.8.0",
     "eslint-plugin-standard": "^3.1.0",
+    "husky": "^2.1.0",
     "picgo": "^1.2.0",
     "tslint": "^5.10.0",
     "tslint-config-standard": "^7.1.0",
