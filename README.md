@@ -50,7 +50,7 @@ After migrating, a new markdown file will be written in the same folder. So you 
 ### CLI
 
 ```bash
-picgo set plugins pic-migrater
+picgo set plugin pic-migrater
 ```
 
 ### GUI

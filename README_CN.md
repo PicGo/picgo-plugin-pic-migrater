@@ -48,7 +48,7 @@ picgo install pic-migrater
 ### 命令行
 
 ```bash
-picgo set plugins pic-migrater
+picgo set plugin pic-migrater
 ```
 
 ### GUI
