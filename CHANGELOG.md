@@ -1,3 +1,17 @@
+## :tada: 1.0.2 (2019-05-04)
+
+
+### :bug: Bug Fixes
+
+* url caption bug ([eb69a34](https://github.com/PicGo/picgo-plugin-pic-migrater/commit/eb69a34)), closes [#1](https://github.com/PicGo/picgo-plugin-pic-migrater/issues/1)
+
+
+### :pencil: Documentation
+
+* fix word error ([de74e81](https://github.com/PicGo/picgo-plugin-pic-migrater/commit/de74e81)), closes [#2](https://github.com/PicGo/picgo-plugin-pic-migrater/issues/2)
+
+
+
 ## :tada: 1.0.1 (2019-04-29)
 
 
