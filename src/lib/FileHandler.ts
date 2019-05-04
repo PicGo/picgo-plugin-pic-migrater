@@ -29,7 +29,7 @@ class FileHandler {
     } else {
       this.urlList[file] = {}
       for (let i of urls) {
-        const url = i.match(/\!\[.*\]\((.*)\)/)[1]
+        const url = i.match(/\!\[.*\]\((.*?)( ".*")?\)/)[1]
         this.urlList[file][url] = url
       }
     }
