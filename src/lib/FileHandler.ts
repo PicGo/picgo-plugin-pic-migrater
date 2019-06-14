@@ -35,10 +35,10 @@ class FileHandler {
     }
   }
 
-  write (file: string, data: string, newPrefix = '_new') {
+  write (file: string, data: string, newSuffix = '_new') {
     const baseName = path.basename(file, '.md')
     const dirName = path.dirname(file)
-    const resultFileName = path.join(dirName, baseName + newPrefix + '.md')
+    const resultFileName = path.join(dirName, baseName + newSuffix + '.md')
     try {
       fs.writeFileSync(resultFileName, data, 'utf8')
       this.ctx.log.success(`Write ${resultFileName} successfully`)

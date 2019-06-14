@@ -59,13 +59,13 @@ picgo set plugin pic-migrater
 
 ### 配置详情
 
-#### newFilePrefix
+#### newFileSuffix
 
 > 新文件名的前缀
 
 ![](https://raw.githubusercontent.com/Molunerfinn/test/master/test/CLI-prefix.png)
 
-举个例子，如果你原本的文件名为 `2019.md` 并且你将 `newFilePrefix` 设置成 `_new`，那么迁移过后，将会生成一个叫做 `2019_new.md` 的新文件。
+举个例子，如果你原本的文件名为 `2019.md` 并且你将 `newFileSuffix` 设置成 `_new`，那么迁移过后，将会生成一个叫做 `2019_new.md` 的新文件。
 
 #### include
 

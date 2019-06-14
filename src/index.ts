@@ -122,10 +122,10 @@ const config = (ctx: picgo): PluginConfig[] => {
   }
   const config = [
     {
-      name: 'newFilePrefix',
+      name: 'newFileSuffix',
       alias: '文件名前缀',
       type: 'input',
-      default: userConfig.newFilePrefix || '_new',
+      default: userConfig.newFileSuffix || '_new',
       required: false
     },
     {
