@@ -43,7 +43,7 @@ picgo install pic-migrater
 
 使用之前请配置一下插件！
 
-因为在迁移某个markdown文件里的图片之后会在同一个文件夹里生成一个新的markdown文件（防止原本文件丢失）。所以你要配置一下这个新的文件的文件名前缀。
+因为在迁移某个markdown文件里的图片之后会在同一个文件夹里生成一个新的markdown文件（防止原本文件丢失）。所以你要配置一下这个新的文件的文件名后缀。
 
 ### 命令行
 
@@ -59,13 +59,13 @@ picgo set plugin pic-migrater
 
 ### 配置详情
 
-#### newFilePrefix
+#### newFileSuffix
 
-> 新文件名的前缀
+> 新文件名的后缀
 
 ![](https://raw.githubusercontent.com/Molunerfinn/test/master/test/CLI-prefix.png)
 
-举个例子，如果你原本的文件名为 `2019.md` 并且你将 `newFilePrefix` 设置成 `_new`，那么迁移过后，将会生成一个叫做 `2019_new.md` 的新文件。
+举个例子，如果你原本的文件名为 `2019.md` 并且你将 `newFileSuffix` 设置成 `_new`，那么迁移过后，将会生成一个叫做 `2019_new.md` 的新文件。
 
 #### include
 

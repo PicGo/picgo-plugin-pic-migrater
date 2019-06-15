@@ -45,7 +45,7 @@ Then `pic-migrater` will registe a command named `migrate`.
 
 Please configurate this plugin first!
 
-After migrating, a new markdown file will be written in the same folder. So you should configurate this new file name's prefix first.
+After migrating, a new markdown file will be written in the same folder. So you should configurate this new file name's suffix first.
 
 ### CLI
 
@@ -61,11 +61,11 @@ Open the setting page in the menu of the plugin.
 
 ### Details
 
-#### newFilePrefix
+#### newFileSuffix
 
 ![](https://raw.githubusercontent.com/Molunerfinn/test/master/test/CLI-prefix.png)
 
-For example, if your origin file named `2019.md` & if you set the `newFilePrefix` to `_new`, then after migrating, a new file named `2019_new.md` will be created.
+For example, if your origin file named `2019.md` & if you set the `newFileSuffix` to `_new`, then after migrating, a new file named `2019_new.md` will be created.
 
 #### include
 
