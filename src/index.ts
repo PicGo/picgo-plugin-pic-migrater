@@ -125,7 +125,8 @@ const config = (ctx: picgo): PluginConfig[] => {
       name: 'newFileSuffix',
       alias: '文件名后缀',
       type: 'input',
-      default: userConfig.newFileSuffix || '_new',
+      message: '_new',
+      default: userConfig.newFileSuffix,
       required: false
     },
     {
