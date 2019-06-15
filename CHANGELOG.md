@@ -1,3 +1,12 @@
+# :tada: 1.1.0 (2019-06-15)
+
+
+### :sparkles: Features
+
+* newFileSuffix now supports '' ([59eca3a](https://github.com/PicGo/picgo-plugin-pic-migrater/commit/59eca3a)), closes [#6](https://github.com/PicGo/picgo-plugin-pic-migrater/issues/6)
+
+
+
 ## :tada: 1.0.2 (2019-05-04)
 
 
