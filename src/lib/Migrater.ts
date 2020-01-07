@@ -11,7 +11,8 @@ class Migrater {
   urlList: any
   urlArray: any[]
   baseDir: string
-  constructor (ctx: picgo, filePath: string) {
+  constructor (ctx: picgo, guiApi: any, filePath: string) {
+    this.guiApi = guiApi
     this.ctx = ctx
     this.baseDir = path.dirname(filePath)
   }
@@ -54,8 +55,14 @@ class Migrater {
       }
     }
     if (input.length > 0) { // ensure there are available pics
-      await this.ctx.upload(input)
-      for (let item of this.ctx.output) {
+      let result = []
+      if (this.guiApi) {
+        result = await this.guiApi.upload(input)
+      } else {
+        await this.ctx.upload(input)
+        result = this.ctx.output
+      }
+      for (let item of result) {
         if (this.urlList[item.origin]) {
           if (item.imgUrl) {
             this.urlList[item.origin] = item.imgUrl

@@ -35,7 +35,7 @@ class FileHandler {
     }
   }
 
-  write (file: string, data: string, newSuffix = '') {
+  write (file: string, data: string, newSuffix = '_new') {
     const baseName = path.basename(file, '.md')
     const dirName = path.dirname(file)
     const resultFileName = path.join(dirName, baseName + newSuffix + '.md')

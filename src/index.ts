@@ -21,7 +21,7 @@ const handleFiles = async (ctx: picgo, files: string[], guiApi: any = undefined)
     // read File
     fileHandler.read(file)
 
-    const migrater = new Migrater(ctx, file)
+    const migrater = new Migrater(ctx, guiApi, file)
     migrater.init(fileHandler.getFileUrlList(file))
 
     // migrate pics
@@ -43,7 +43,8 @@ const handleFiles = async (ctx: picgo, files: string[], guiApi: any = undefined)
       for (let originUrl in result.urlList) {
         content = content.replace(new RegExp(originUrl, 'g'), result.urlList[originUrl])
       }
-      fileHandler.write(file, content)
+      const newFileSuffix = ctx.getConfig('picgo-plugin-pic-migrater.newFileSuffix')
+      fileHandler.write(file, content, newFileSuffix)
     }
   }
   ctx.log.info(`Success: ${success} pics, Fail: ${total - success} pics`)
@@ -78,7 +79,7 @@ const guiMenu = (ctx: picgo) => {
             ]
           })
           if (files) {
-            handleFiles(ctx, files, guiApi)
+            await handleFiles(ctx, files, guiApi)
           } else {
             return false
           }
@@ -105,7 +106,7 @@ const guiMenu = (ctx: picgo) => {
           let files = await globby(['**/*.md'], { cwd: sourceDir, dot: true })
           files = files.map((file: string) => path.join(sourceDir, file))
           if (files.length > 0) {
-            handleFiles(ctx, files, guiApi)
+            await handleFiles(ctx, files, guiApi)
           }
         } else {
           return false
@@ -178,7 +179,7 @@ export = (ctx: picgo) => {
               }
             }
             if (inputFiles.length > 0) {
-              handleFiles(ctx, inputFiles)
+              await handleFiles(ctx, inputFiles)
             }
           })
           .on('--help', () => {
