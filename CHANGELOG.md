@@ -1,3 +1,13 @@
+# :tada: 1.2.0 (2020-01-08)
+
+
+### :bug: Bug Fixes
+
+* not write new file with newFileSuffix ([efb4dd8](https://github.com/PicGo/picgo-plugin-pic-migrater/commit/efb4dd8)), closes [#12](https://github.com/PicGo/picgo-plugin-pic-migrater/issues/12)
+* setConfig need to revert after uploading ([1131f2e](https://github.com/PicGo/picgo-plugin-pic-migrater/commit/1131f2e))
+
+
+
 # :tada: 1.1.0 (2019-06-15)
 
 
