@@ -24,6 +24,7 @@ class Migrater {
 
   async migrate (): Promise<MigrateResult> {
     let input = []
+    const originTransformer = this.ctx.getConfig('picBed.transformer')
     this.ctx.setConfig({
       'picBed.transformer': 'base64'
     })
@@ -77,6 +78,9 @@ class Migrater {
         total: uploadCount
       }
     }
+    this.ctx.setConfig({
+      'picBed.transformer': originTransformer // for GUI reset config
+    })
     return result
   }
 
