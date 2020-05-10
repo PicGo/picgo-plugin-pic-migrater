@@ -60,6 +60,7 @@
   },
   "dependencies": {
     "globby": "^9.0.0",
+    "image-size": "^0.8.3",
     "probe-image-size": "^4.0.0"
   }
 }

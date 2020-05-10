@@ -6,6 +6,15 @@ import path from 'path'
 import { PluginConfig } from 'picgo/dist/utils/interfaces'
 import fs from 'fs'
 
+const replaceAll = (content: string, originText: string, replaceText: string): string => {
+  let index = content.indexOf(originText)
+  while (index !== -1) {
+    content = content.replace(originText, replaceText)
+    index = content.indexOf(originText)
+  }
+  return content
+}
+
 const handleFiles = async (ctx: picgo, files: string[], guiApi: any = undefined) => {
   if (guiApi) {
     guiApi.showNotification({
@@ -41,7 +50,7 @@ const handleFiles = async (ctx: picgo, files: string[], guiApi: any = undefined)
       let content = fileHandler.getFileContent(file)
       // replace content
       for (let originUrl in result.urlList) {
-        content = content.replace(new RegExp(originUrl, 'g'), result.urlList[originUrl])
+        content = replaceAll(content, originUrl, result.urlList[originUrl])
       }
       const newFileSuffix = ctx.getConfig('picgo-plugin-pic-migrater.newFileSuffix')
       fileHandler.write(file, content, newFileSuffix)
