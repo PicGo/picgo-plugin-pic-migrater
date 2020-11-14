@@ -1,3 +1,13 @@
+## :tada: 1.2.1 (2020-11-14)
+
+
+### :bug: Bug Fixes
+
+* hash in filename's bug ([fb1b743](https://github.com/PicGo/picgo-plugin-pic-migrater/commit/fb1b743))
+* replaceAll bugs when url has some special chars ([fb5511a](https://github.com/PicGo/picgo-plugin-pic-migrater/commit/fb5511a)), closes [#25](https://github.com/PicGo/picgo-plugin-pic-migrater/issues/25)
+
+
+
 # :tada: 1.2.0 (2020-01-08)
 
 
