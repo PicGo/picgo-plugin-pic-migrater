@@ -123,7 +123,7 @@ class Migrater {
   async handlePicFromURL (url: string) {
     try {
       let buffer = await this.getPicFromURL(url)
-      let fileName = path.basename(url).split('?')[0]
+      let fileName = path.basename(url).split('?')[0].split('#')[0]
       let imgSize = probe.sync(buffer)
       return {
         buffer,
