@@ -1,12 +1,15 @@
-import picgo from 'picgo'
-import FileHandler from './lib/FileHandler'
-import Migrater from './lib/Migrater'
+import fs from 'fs'
 import globby from 'globby'
 import path from 'path'
+import picgo from 'picgo'
 import { PluginConfig } from 'picgo/dist/utils/interfaces'
-import fs from 'fs'
+import FileHandler from './lib/FileHandler'
+import Migrater from './lib/Migrater'
 
 const replaceAll = (content: string, originText: string, replaceText: string): string => {
+  if (originText === replaceText) {
+    return content
+  }
   let index = content.indexOf(originText)
   while (index !== -1) {
     content = content.replace(originText, replaceText)
@@ -16,6 +19,7 @@ const replaceAll = (content: string, originText: string, replaceText: string): s
 }
 
 const handleFiles = async (ctx: picgo, files: string[], guiApi: any = undefined) => {
+  const newFileSuffix = ctx.getConfig('picgo-plugin-pic-migrater.newFileSuffix')
   if (guiApi) {
     guiApi.showNotification({
       title: `迁移进行中...`,
@@ -23,8 +27,10 @@ const handleFiles = async (ctx: picgo, files: string[], guiApi: any = undefined)
     })
   }
   ctx.log.info('Migrating...')
+
   let total = 0
   let success = 0
+
   for (let file of files) {
     const fileHandler = new FileHandler(ctx)
     // read File
@@ -35,27 +41,34 @@ const handleFiles = async (ctx: picgo, files: string[], guiApi: any = undefined)
 
     // migrate pics
     const result = await migrater.migrate()
-    total += result.result.total
-    success += result.result.success
-    if (result.result.success === 0 && (result.result.total !== 0)) {
-      ctx.log.warn(`Please check your configuration, since no images migrated successfully in ${file}`)
+
+    if (result.total === 0) {
+      // early next
+      continue
+    }
+
+    total += result.total
+    success += result.success
+    if (result.success === 0 && result.total !== 0) {
+      ctx.log.warn(
+        `Please check your configuration, since no images migrated successfully in ${file}`
+      )
       if (guiApi) {
         guiApi.showNotification({
-          title: `${file}迁移失败！`,
-          body: '迁移图片0成功，请检查是否是URL不存在或者图床配置问题'
+          title: `${file} 迁移失败！`,
+          body: '无成功迁移的图片，请检查 URL 是否存在或者图床配置问题'
         })
       }
-      continue
     } else {
       let content = fileHandler.getFileContent(file)
       // replace content
-      for (let originUrl in result.urlList) {
-        content = replaceAll(content, originUrl, result.urlList[originUrl])
-      }
-      const newFileSuffix = ctx.getConfig('picgo-plugin-pic-migrater.newFileSuffix')
+      result.urls.forEach((item) => {
+        content = replaceAll(content, item.original, item.new)
+      })
       fileHandler.write(file, content, newFileSuffix)
     }
   }
+
   ctx.log.info(`Success: ${success} pics, Fail: ${total - success} pics`)
   if (guiApi) {
     guiApi.showNotification({
@@ -66,11 +79,11 @@ const handleFiles = async (ctx: picgo, files: string[], guiApi: any = undefined)
 }
 
 const guiMenu = (ctx: picgo) => {
+  const userConfig = ctx.getConfig('picgo-plugin-pic-migrater')
   return [
     {
       label: '选择文件',
       async handle (ctx: picgo, guiApi: any) {
-        let userConfig = ctx.getConfig('picgo-plugin-pic-migrater')
         if (!userConfig) {
           return guiApi.showNotification({
             title: '请先进行配置',
@@ -100,7 +113,6 @@ const guiMenu = (ctx: picgo) => {
     {
       label: '选择文件夹',
       async handle (ctx: picgo, guiApi: any) {
-        let userConfig = ctx.getConfig('picgo-plugin-pic-migrater')
         if (!userConfig) {
           return guiApi.showNotification({
             title: '请先进行配置',
@@ -172,7 +184,7 @@ export = (ctx: picgo) => {
               ctx.log.info('picgo set plugin pic-migrater')
               return
             }
-            files = files.map(item => path.resolve(item))
+            files = files.map((item) => path.resolve(item))
             let inputFiles = []
             for (let filePath of files) {
               // make sure filePath exists
@@ -192,19 +204,19 @@ export = (ctx: picgo) => {
             }
           })
           .on('--help', () => {
-            console.log()
-            console.log('Note:')
-            console.log('You should configurate this plugin first!')
-            console.log('picgo set plugin pic-migrater')
-            console.log()
-            console.log('Examples:')
-            console.log()
-            console.log('  # migrate file or files')
-            console.log('  $ picgo migrate ./test.md ./test1.md')
-            console.log()
-            console.log('  # migrate markdown files in folder')
-            console.log('  $ picgo migrate ./test/')
-            console.log()
+            console.log(`
+              Note:
+              You should configurate this plugin first!
+              picgo set plugin pic-migrater
+
+              Examples:
+                # migrate file or files
+                $ picgo migrate ./test.md ./test1.md
+
+                # migrate markdown files in folder
+                $ picgo migrate ./test/
+                `.replace(/  +/g, '')
+            )
           })
       }
     })

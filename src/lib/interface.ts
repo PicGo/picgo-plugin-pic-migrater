@@ -1,13 +1,10 @@
-interface MigrateResult {
-  urlList: {
-    [picPath: string]: string
-  }
-  result: {
-    success: number
-    total: number
-  }
+interface IMigrateResult {
+  urls: Array<{
+    original: string;
+    new: string;
+  }>
+  success: number //  count of which was migrated
+  total: number // total count of which should migrate
 }
 
-export {
-  MigrateResult
-}
+export { IMigrateResult }
