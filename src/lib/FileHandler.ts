@@ -1,11 +1,11 @@
-import picgo from 'picgo'
 import fs from 'fs'
 import path from 'path'
+import picgo from 'picgo'
 
 class FileHandler {
   ctx: picgo
   fileList: {
-    [propName: string]: string
+    [propName: string]: string;
   }
   urlList: any
   constructor (ctx: picgo) {
@@ -22,6 +22,7 @@ class FileHandler {
     this.fileList[file] = content
     this.getFileUrlContent(file)
   }
+
   getFileUrlContent (file: string) {
     let urls = this.fileList[file].match(/\!\[.*\]\(.*\)/g)
     if (urls === null) {

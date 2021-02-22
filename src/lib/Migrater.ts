@@ -1,14 +1,13 @@
-import picgo from 'picgo'
 import fs from 'fs'
 import path from 'path'
-import probe from 'probe-image-size'
-import { MigrateResult } from './interface'
+import picgo from 'picgo'
 import { ImgInfo } from 'picgo/dist/utils/interfaces'
+import probe from 'probe-image-size'
+import { IMigrateResult } from './interface'
 
 class Migrater {
   ctx: picgo
   guiApi: any
-  urlList: any
   urlArray: any[]
   baseDir: string
   constructor (ctx: picgo, guiApi: any, filePath: string) {
@@ -18,12 +17,10 @@ class Migrater {
   }
 
   init (urlList: any) {
-    this.urlList = urlList
     this.urlArray = Object.keys(urlList)
   }
 
-  async migrate (): Promise<MigrateResult> {
-    let input = []
+  async migrate (): Promise<IMigrateResult> {
     const originTransformer = this.ctx.getConfig('picBed.transformer')
     this.ctx.setConfig({
       'picBed.transformer': 'base64'
@@ -33,54 +30,63 @@ class Migrater {
     const exclude: string | null = this.ctx.getConfig('picgo-plugin-pic-migrater.exclude') || null
     const includesReg = new RegExp(include)
     const excludesReg = new RegExp(exclude)
-    let uploadCount: number = 0
-    for (let i in this.urlArray) {
-      try {
-        if (!include || includesReg.test(this.urlArray[i])) {
-          if (!exclude || !excludesReg.test(this.urlArray[i])) {
-            uploadCount++
-            let uploadData: ImgInfo | Boolean
-            let picPath = this.getLocalPath(this.urlArray[i])
-            if (!picPath) {
-              uploadData = await this.handlePicFromURL(this.urlArray[i])
-            } else {
-              uploadData = await this.handlePicFromLocal(picPath, this.urlArray[i])
-            }
-            if (uploadData) {
-              input.push(uploadData)
-            }
-          }
-        }
-      } catch (e) {
-        console.log(e)
-      }
+
+    const result: IMigrateResult = {
+      urls: [],
+      success: 0,
+      total: 0
     }
-    if (input.length > 0) { // ensure there are available pics
-      let result = []
+
+    if (!this.urlArray || this.urlArray.length === 0) {
+      return result
+    }
+
+    const toUploadURLs = this.urlArray.filter(url => (!include || includesReg.test(url) && !exclude || !excludesReg.test(url))).map(url => {
+      return new Promise<ImgInfo>(async (resolve, reject) => {
+        result.total += 1
+
+        try {
+          let imgInfo: ImgInfo
+          const picPath = this.getLocalPath(url)
+          if (!picPath) {
+            imgInfo = await this.handlePicFromURL(url)
+          } else {
+            imgInfo = await this.handlePicFromLocal(picPath, url)
+          }
+          resolve(imgInfo)
+        } catch (err) {
+          // dont reject
+          resolve(undefined)
+          this.ctx.log.error(err)
+        }
+      })
+    })
+
+    const toUploadImgs = await Promise.all(toUploadURLs).then(imgs => imgs.filter(img => img !== undefined))
+
+    // upload
+    let output = []
+    if (toUploadImgs && toUploadImgs.length > 0) {
       if (this.guiApi) {
-        result = await this.guiApi.upload(input)
+        output = await this.guiApi.upload(toUploadImgs)
       } else {
-        await this.ctx.upload(input)
-        result = this.ctx.output
-      }
-      for (let item of result) {
-        if (this.urlList[item.origin]) {
-          if (item.imgUrl) {
-            this.urlList[item.origin] = item.imgUrl
-          }
-        }
+        await this.ctx.upload(toUploadImgs)
+        output = this.ctx.output
       }
     }
-    let result = {
-      urlList: Object.assign({}, this.urlList),
-      result: {
-        success: this.calcSuccessLength(),
-        total: uploadCount
+
+    result.urls = output.filter(item => item.imgUrl && item.imgUrl !== item.origin).map(item => {
+      return {
+        original: item.origin,
+        new: item.imgUrl
       }
-    }
+    })
+    result.success = result.urls.length
+
     this.ctx.setConfig({
       'picBed.transformer': originTransformer // for GUI reset config
     })
+
     return result
   }
 
@@ -102,7 +108,7 @@ class Migrater {
     })
   }
 
-  async handlePicFromLocal (picPath: string, origin: string) {
+  async handlePicFromLocal (picPath: string, origin: string): Promise<ImgInfo | undefined> {
     if (fs.existsSync(picPath)) {
       let fileName = path.basename(picPath)
       let buffer = fs.readFileSync(picPath)
@@ -116,11 +122,11 @@ class Migrater {
         origin
       }
     } else {
-      return false
+      return undefined
     }
   }
 
-  async handlePicFromURL (url: string) {
+  async handlePicFromURL (url: string): Promise<ImgInfo | undefined> {
     try {
       let buffer = await this.getPicFromURL(url)
       let fileName = path.basename(url).split('?')[0].split('#')[0]
@@ -134,18 +140,8 @@ class Migrater {
         origin: url
       }
     } catch (e) {
-      return false
+      return undefined
     }
-  }
-
-  calcSuccessLength () {
-    let count = 0
-    for (let i in this.urlList) {
-      if (this.urlList[i] !== i) {
-        count += 1
-      }
-    }
-    return count
   }
 }
 
