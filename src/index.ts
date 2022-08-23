@@ -10,11 +10,7 @@ const replaceAll = (content: string, originText: string, replaceText: string): s
   if (originText === replaceText) {
     return content
   }
-  let index = content.indexOf(originText)
-  while (index !== -1) {
-    content = content.replace(originText, replaceText)
-    index = content.indexOf(originText)
-  }
+  content = content.replace(new RegExp(originText, 'g'), replaceText)
   return content
 }
 
@@ -35,7 +31,6 @@ const handleFiles = async (ctx: picgo, files: string[], guiApi: any = undefined)
     const fileHandler = new FileHandler(ctx)
     // read File
     fileHandler.read(file)
-
     const migrater = new Migrater(ctx, guiApi, file)
     migrater.init(fileHandler.getFileUrlList(file))
 
@@ -91,7 +86,7 @@ const guiMenu = (ctx: picgo) => {
           })
         }
         try {
-          const files = await guiApi.showFileExplorer({
+          let files = await guiApi.showFileExplorer({
             properties: ['openFile', 'multiSelections'],
             filters: [
               {
@@ -101,6 +96,9 @@ const guiMenu = (ctx: picgo) => {
             ]
           })
           if (files) {
+            if (typeof files === 'string') {
+              files = [files]
+            }
             await handleFiles(ctx, files, guiApi)
           } else {
             return false

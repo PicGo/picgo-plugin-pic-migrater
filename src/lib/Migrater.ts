@@ -41,7 +41,7 @@ class Migrater {
       return result
     }
 
-    const toUploadURLs = this.urlArray.filter(url => (!include || includesReg.test(url) && !exclude || !excludesReg.test(url))).map(url => {
+    const toUploadURLs = this.urlArray.filter(url => ((!include || includesReg.test(url)) && (!exclude || !excludesReg.test(url)))).map(url => {
       return new Promise<ImgInfo>(async (resolve, reject) => {
         result.total += 1
 

@@ -4,10 +4,8 @@ import picgo from 'picgo'
 
 class FileHandler {
   ctx: picgo
-  fileList: {
-    [propName: string]: string;
-  }
-  urlList: any
+  fileList: IFileList
+  urlList: IURLList
   constructor (ctx: picgo) {
     this.ctx = ctx
     this.fileList = {}
@@ -56,11 +54,11 @@ class FileHandler {
     return this.urlList
   }
 
-  getFileUrlList (file) {
+  getFileUrlList (file: string): IStringKeyMap {
     return this.urlList[file]
   }
 
-  getFileContent (file: string) {
+  getFileContent (file: string): string {
     return this.fileList[file]
   }
 }
