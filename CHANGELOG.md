@@ -1,3 +1,18 @@
+## :tada: 1.2.2 (2022-08-24)
+
+
+### :bug: Bug Fixes
+
+* replaceAll bug & cause PicGo crash ([95c88eb](https://github.com/PicGo/picgo-plugin-pic-migrater/commit/95c88eb)), closes [#38](https://github.com/PicGo/picgo-plugin-pic-migrater/issues/38)
+* some bugs && refactor migrater ([532ccbc](https://github.com/PicGo/picgo-plugin-pic-migrater/commit/532ccbc))
+
+
+### :package: Chore
+
+* add github action ([2208811](https://github.com/PicGo/picgo-plugin-pic-migrater/commit/2208811))
+
+
+
 ## :tada: 1.2.1 (2020-11-14)
 
 
