@@ -1,3 +1,12 @@
+## :tada: 1.2.3 (2022-08-25)
+
+
+### :sparkles: Features
+
+* add nodejs api export \&\& update readme ([46f6c44](https://github.com/PicGo/picgo-plugin-pic-migrater/commit/46f6c44))
+
+
+
 ## :tada: 1.2.2 (2022-08-24)
 
 
