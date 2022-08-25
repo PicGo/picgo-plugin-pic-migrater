@@ -1,22 +1,23 @@
+/* eslint-disable @typescript-eslint/no-misused-promises */
+/* eslint-disable no-async-promise-executor */
 import fs from 'fs'
 import path from 'path'
-import picgo from 'picgo'
-import { ImgInfo } from 'picgo/dist/utils/interfaces'
+import { IImgInfo, PicGo } from 'picgo'
 import probe from 'probe-image-size'
 import { IMigrateResult } from './interface'
 
 class Migrater {
-  ctx: picgo
+  ctx: PicGo
   guiApi: any
   urlArray: any[]
   baseDir: string
-  constructor (ctx: picgo, guiApi: any, filePath: string) {
+  constructor (ctx: PicGo, guiApi: any, filePath: string) {
     this.guiApi = guiApi
     this.ctx = ctx
     this.baseDir = path.dirname(filePath)
   }
 
-  init (urlList: any) {
+  init (urlList: any): void {
     this.urlArray = Object.keys(urlList)
   }
 
@@ -41,12 +42,12 @@ class Migrater {
       return result
     }
 
-    const toUploadURLs = this.urlArray.filter(url => ((!include || includesReg.test(url)) && (!exclude || !excludesReg.test(url)))).map(url => {
-      return new Promise<ImgInfo>(async (resolve, reject) => {
+    const toUploadURLs = this.urlArray.filter(url => ((!include || includesReg.test(url)) && (!exclude || !excludesReg.test(url)))).map(async url => {
+      return await new Promise<IImgInfo>(async (resolve, reject): Promise<void> => {
         result.total += 1
 
         try {
-          let imgInfo: ImgInfo
+          let imgInfo: IImgInfo
           const picPath = this.getLocalPath(url)
           if (!picPath) {
             imgInfo = await this.handlePicFromURL(url)
@@ -63,6 +64,7 @@ class Migrater {
     })
 
     const toUploadImgs = await Promise.all(toUploadURLs).then(imgs => imgs.filter(img => img !== undefined))
+    console.log('toUploadImgs', toUploadImgs)
 
     // upload
     let output = []
@@ -70,8 +72,16 @@ class Migrater {
       if (this.guiApi) {
         output = await this.guiApi.upload(toUploadImgs)
       } else {
-        await this.ctx.upload(toUploadImgs)
-        output = this.ctx.output
+        try {
+          const res = await this.ctx.upload(toUploadImgs)
+          if (Array.isArray(res)) {
+            output = res
+          }
+        } catch (e) {
+          // fake output
+          this.ctx.log.error(e)
+          output = this.ctx.output
+        }
       }
     }
 
@@ -90,7 +100,7 @@ class Migrater {
     return result
   }
 
-  getLocalPath (imgPath: string) {
+  getLocalPath (imgPath: string): string | false {
     if (!path.isAbsolute(imgPath)) {
       imgPath = path.join(this.baseDir, imgPath)
     }
@@ -101,18 +111,18 @@ class Migrater {
     }
   }
 
-  getPicFromURL (url) {
+  async getPicFromURL (url): Promise<Buffer> {
     return this.ctx.Request.request({
       url,
       encoding: null
     })
   }
 
-  async handlePicFromLocal (picPath: string, origin: string): Promise<ImgInfo | undefined> {
+  async handlePicFromLocal (picPath: string, origin: string): Promise<IImgInfo | undefined> {
     if (fs.existsSync(picPath)) {
-      let fileName = path.basename(picPath)
-      let buffer = fs.readFileSync(picPath)
-      let imgSize = probe.sync(buffer)
+      const fileName = path.basename(picPath)
+      const buffer = fs.readFileSync(picPath)
+      const imgSize = probe.sync(buffer)
       return {
         buffer,
         fileName,
@@ -126,11 +136,11 @@ class Migrater {
     }
   }
 
-  async handlePicFromURL (url: string): Promise<ImgInfo | undefined> {
+  async handlePicFromURL (url: string): Promise<IImgInfo | undefined> {
     try {
-      let buffer = await this.getPicFromURL(url)
-      let fileName = path.basename(url).split('?')[0].split('#')[0]
-      let imgSize = probe.sync(buffer)
+      const buffer = await this.getPicFromURL(url)
+      const fileName = path.basename(url).split('?')[0].split('#')[0]
+      const imgSize = probe.sync(buffer)
       return {
         buffer,
         fileName,

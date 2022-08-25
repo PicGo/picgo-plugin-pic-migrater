@@ -1,8 +1,7 @@
 import fs from 'fs'
 import globby from 'globby'
 import path from 'path'
-import picgo from 'picgo'
-import { PluginConfig } from 'picgo/dist/utils/interfaces'
+import { IGuiMenuItem, PicGo, IPluginConfig } from 'picgo'
 import FileHandler from './lib/FileHandler'
 import Migrater from './lib/Migrater'
 
@@ -14,11 +13,14 @@ const replaceAll = (content: string, originText: string, replaceText: string): s
   return content
 }
 
-const handleFiles = async (ctx: picgo, files: string[], guiApi: any = undefined) => {
-  const newFileSuffix = ctx.getConfig('picgo-plugin-pic-migrater.newFileSuffix')
+const handleFiles = async (ctx: PicGo, files: string[], guiApi: any = undefined): Promise<{
+  total: number
+  success: number
+}> => {
+  const newFileSuffix = ctx.getConfig<string>('picgo-plugin-pic-migrater.newFileSuffix')
   if (guiApi) {
     guiApi.showNotification({
-      title: `迁移进行中...`,
+      title: '迁移进行中...',
       body: '请耐心等待'
     })
   }
@@ -27,7 +29,7 @@ const handleFiles = async (ctx: picgo, files: string[], guiApi: any = undefined)
   let total = 0
   let success = 0
 
-  for (let file of files) {
+  for (const file of files) {
     const fileHandler = new FileHandler(ctx)
     // read File
     fileHandler.read(file)
@@ -62,6 +64,10 @@ const handleFiles = async (ctx: picgo, files: string[], guiApi: any = undefined)
       })
       fileHandler.write(file, content, newFileSuffix)
     }
+    return {
+      total,
+      success
+    }
   }
 
   ctx.log.info(`Success: ${success} pics, Fail: ${total - success} pics`)
@@ -73,12 +79,12 @@ const handleFiles = async (ctx: picgo, files: string[], guiApi: any = undefined)
   }
 }
 
-const guiMenu = (ctx: picgo) => {
-  const userConfig = ctx.getConfig('picgo-plugin-pic-migrater')
+const guiMenu = (ctx: PicGo): IGuiMenuItem[] => {
+  const userConfig = ctx.getConfig<IMigraterConfig>('picgo-plugin-pic-migrater')
   return [
     {
       label: '选择文件',
-      async handle (ctx: picgo, guiApi: any) {
+      async handle (ctx: PicGo, guiApi: any) {
         if (!userConfig) {
           return guiApi.showNotification({
             title: '请先进行配置',
@@ -110,7 +116,7 @@ const guiMenu = (ctx: picgo) => {
     },
     {
       label: '选择文件夹',
-      async handle (ctx: picgo, guiApi: any) {
+      async handle (ctx: PicGo, guiApi: any) {
         if (!userConfig) {
           return guiApi.showNotification({
             title: '请先进行配置',
@@ -121,7 +127,7 @@ const guiMenu = (ctx: picgo) => {
           properties: ['openDirectory']
         })
         if (result) {
-          let sourceDir = result[0]
+          const sourceDir = result[0]
           let files = await globby(['**/*.md'], { cwd: sourceDir, dot: true })
           files = files.map((file: string) => path.join(sourceDir, file))
           if (files.length > 0) {
@@ -135,8 +141,8 @@ const guiMenu = (ctx: picgo) => {
   ]
 }
 
-const config = (ctx: picgo): PluginConfig[] => {
-  let userConfig = ctx.getConfig('picgo-plugin-pic-migrater')
+const config = (ctx: PicGo): IPluginConfig[] => {
+  let userConfig = ctx.getConfig<IMigraterConfig>('picgo-plugin-pic-migrater')
   if (!userConfig) {
     userConfig = {}
   }
@@ -168,15 +174,15 @@ const config = (ctx: picgo): PluginConfig[] => {
   return config
 }
 
-export = (ctx: picgo) => {
-  const register = () => {
+export = (ctx: PicGo) => {
+  const register = (): void => {
     ctx.cmd.register('migrate', {
-      handle (ctx: picgo) {
+      handle (ctx: PicGo) {
         ctx.cmd.program
           .command('migrate <files...>')
           .description('migrating pictures url from markdown files')
           .action(async (files: string[]) => {
-            let userConfig = ctx.getConfig('picgo-plugin-pic-migrater')
+            const userConfig = ctx.getConfig<IMigraterConfig>('picgo-plugin-pic-migrater')
             if (!userConfig) {
               ctx.log.warn('You should configurate this plugin first!')
               ctx.log.info('picgo set plugin pic-migrater')
@@ -184,10 +190,10 @@ export = (ctx: picgo) => {
             }
             files = files.map((item) => path.resolve(item))
             let inputFiles = []
-            for (let filePath of files) {
+            for (const filePath of files) {
               // make sure filePath exists
               if (fs.existsSync(filePath)) {
-                let status = fs.statSync(filePath)
+                const status = fs.statSync(filePath)
                 if (status.isDirectory()) {
                   let mdFiles = await globby(['**/*.md'], { cwd: filePath, dot: true })
                   mdFiles = mdFiles.map((file: string) => path.resolve(filePath, file))
@@ -222,6 +228,7 @@ export = (ctx: picgo) => {
   return {
     register,
     config,
-    guiMenu
+    guiMenu,
+    migrateFiles: handleFiles.bind(null, ctx)
   }
 }

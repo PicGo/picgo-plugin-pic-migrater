@@ -8,3 +8,4 @@ tslint.json
 src/
 .travis.yml
 temp.py
+.eslintrc

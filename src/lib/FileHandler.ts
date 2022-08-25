@@ -1,18 +1,19 @@
+/* eslint-disable no-useless-escape */
 import fs from 'fs'
 import path from 'path'
-import picgo from 'picgo'
+import { PicGo } from 'picgo'
 
 class FileHandler {
-  ctx: picgo
+  ctx: PicGo
   fileList: IFileList
   urlList: IURLList
-  constructor (ctx: picgo) {
+  constructor (ctx: PicGo) {
     this.ctx = ctx
     this.fileList = {}
     this.urlList = {}
   }
 
-  read (file: string) {
+  read (file: string): void {
     if (!fs.existsSync(file) && !(path.extname(file) === '.md')) {
       return
     }
@@ -21,20 +22,20 @@ class FileHandler {
     this.getFileUrlContent(file)
   }
 
-  getFileUrlContent (file: string) {
-    let urls = this.fileList[file].match(/\!\[.*\]\(.*\)/g)
+  getFileUrlContent (file: string): void {
+    const urls = this.fileList[file].match(/\!\[.*\]\(.*\)/g)
     if (urls === null) {
       this.urlList[file] = {}
     } else {
       this.urlList[file] = {}
-      for (let i of urls) {
+      for (const i of urls) {
         const url = i.match(/\!\[.*\]\((.*?)( ".*")?\)/)[1]
         this.urlList[file][url] = url
       }
     }
   }
 
-  write (file: string, data: string, newSuffix = '_new') {
+  write (file: string, data: string, newSuffix = '_new'): void {
     const baseName = path.basename(file, '.md')
     const dirName = path.dirname(file)
     const resultFileName = path.join(dirName, baseName + newSuffix + '.md')
@@ -46,11 +47,11 @@ class FileHandler {
     }
   }
 
-  getFileList () {
+  getFileList (): IFileList {
     return this.fileList
   }
 
-  getUrlList () {
+  getUrlList (): IURLList {
     return this.urlList
   }
 

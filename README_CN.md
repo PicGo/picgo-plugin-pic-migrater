@@ -23,6 +23,12 @@
 ![](https://i.imgur.com/xxxx.jpg)
 ```
 
+## 版本要求
+
+`picgo-plugin-pic-migrater <= 1.2.2` 需要 PicGo-GUI 版本 `2.0.2 ~ 2.2.0, PicGo-Cli 版本 1.4.0 ~ 1.5.0-`.
+
+`picgo-plugin-pic-migrater > 1.2.2` 需要 PicGo-GUI 版本 `2.3.0 ~ 目前最新开发版`, PicGo-Cli 版本 `1.5.0-alpha.1 ~ 目前最新alpha版本`.
+
 ## 安装
 
 ### 命令行
@@ -112,6 +118,28 @@ Examples:
 ### GUI
 
 ![](https://raw.githubusercontent.com/Molunerfinn/test/master/test/pic-migrater-gui.png)
+
+
+### Node.js项目（v1.2.3+）
+
+```js
+const { PicGo } = require('picgo')
+const PluginMigrater = require('picgo-plugin-pic-migrater')
+
+const picgo = new PicGo()
+
+picgo.setConfig({
+  'picgo-plugin-pic-migrater': {
+    newFileSuffix: '_new',
+    include: '',
+    exclude: ''
+  }
+})
+
+const plugin = PluginMigrater(picgo)
+
+plugin.migrateFiles(['/xxx/yyy.md']) // { total: number, success: number }
+```
 
 ## 感谢
 

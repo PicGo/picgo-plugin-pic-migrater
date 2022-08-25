@@ -1,0 +1,23 @@
+{
+  "root": true,
+  "parser": "@typescript-eslint/parser",
+  "parserOptions": {
+    "ecmaVersion": 6,
+    "sourceType": "module",
+    "project": "./tsconfig.json"
+  },
+  "ignorePatterns": ["temp.js"],
+  "plugins": ["@typescript-eslint"],
+  "extends": ["standard-with-typescript"],
+  "rules": {
+    "@typescript-eslint/semi": "error",
+    "@typescript-eslint/strict-boolean-expressions": "off",
+    "@typescript-eslint/restrict-template-expressions": "off",
+    "no-prototype-builtins": "off",
+    "no-throw-literal": "error",
+    "no-unused-expressions": "error",
+    "no-redeclare": "error",
+    "curly": "error",
+    "eqeqeq": "error"
+  }
+}

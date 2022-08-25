@@ -11,3 +11,9 @@ interface IURLList {
 interface IStringKeyMap {
   [key: string]: string
 }
+
+interface IMigraterConfig {
+  newFileSuffix?: string
+  include?: string
+  exclude?: string
+}
