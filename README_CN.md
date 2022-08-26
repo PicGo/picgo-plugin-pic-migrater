@@ -8,12 +8,16 @@
 
 1. **这个插件既可以被用在 [命令行](https://github.com/PicGo/PicGo-Core) 版本的PicGo里也可以用在 [GUI](https://github.com/Molunerfinn/PicGo) 版本的PicGo里!**
 2. 它迁移支持本地相对路径或者绝对路径的图片，也支持迁移远端URL的图片。
+3. 它支持 markdown 文件中 markdown 格式的图片链接以及 html 格式的图片链接。（从 v1.3.0 开始支持）
 
 举个例子，我们手上有一个 `test.md`:
 
 ```md
 ![](./js.jpg)
 ![](http://xxx.com/js.jpg)
+
+<!-- 从 v1.3.0 开始，支持 img 标签的图片链接迁移 -->
+<img src="http://yyy.com/js.jpg" />
 ```
 
 如果你选择了 `imgur` 作为你的默认图床, 那么迁移过后:
@@ -21,6 +25,9 @@
 ```md
 ![](https://i.imgur.com/xxx.jpg)
 ![](https://i.imgur.com/xxxx.jpg)
+
+<!-- 从 v1.3.0 开始，支持 img 标签的图片链接迁移 -->
+<img src="http://i.imgur.com/xxxxx.jpg" />
 ```
 
 ## 版本要求
@@ -88,6 +95,12 @@ picgo set plugin pic-migrater
 如果你配置了 `exclude` 字段，那么migrator将不会迁移包含这个字段值的图片地址。
 
 举个例子，如果你将 `exclude` 配置为 `sinaimg.cn`，那么migrator不会迁移那些URL或者路径里带有`sinaimg.cn`字符串的图片。
+
+#### oldContentWriteToNewFile
+
+> 从 v1.3.0 开始
+
+如果你吧 `oldContentWriteToNewFile` 配置成 `true`，那么旧的文件内容将会写入新的文件中，而迁移的结果将会写入旧的文件中。
 
 ## 使用方法
 

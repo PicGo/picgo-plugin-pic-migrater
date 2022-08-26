@@ -10,12 +10,16 @@ A PicGo plugin for pictures in markdown files migrating from one picBed to anoth
 
 1. **This plugin can be used in [CLI](https://github.com/PicGo/PicGo-Core) & [GUI](https://github.com/Molunerfinn/PicGo) version of PicGo!**
 2. It supports absolute and relative path of images, and the url path of images.
+3. It supports both markdown format and html format image url in markdown file. (Since v1.3.0)
 
 For example, a `test.md`:
 
 ```md
 ![](./js.jpg)
 ![](http://xxx.com/js.jpg)
+
+<!-- since v1.3.0, support migrating img src -->
+<img src="http://yyy.com/js.jpg" />
 ```
 
 if you choose `imgur` as your migrated picBed, after migrating:
@@ -23,6 +27,9 @@ if you choose `imgur` as your migrated picBed, after migrating:
 ```md
 ![](https://i.imgur.com/xxx.jpg)
 ![](https://i.imgur.com/xxxx.jpg)
+
+<!-- since v1.3.0, support migrating img src -->
+<img src="http://i.imgur.com/xxxxx.jpg" />
 ```
 
 ## Version required
@@ -84,6 +91,12 @@ For example, if your set the `include` to `sinaimg.cn`， then migrator will onl
 If you set the `exclude` configuration then migrator will only migrate the files' path or url which don't match the `exclude`.
 
 For example, if your set the `exclude` to `sinaimg.cn`， then migrator will only migrate the url or path doesn't includes `sinaimg.cn`.
+
+#### oldContentWriteToNewFile
+
+> Since v1.3.0
+
+If you set the `oldContentWriteToNewFile` to `true`, then the old content will be written to the new file and the migrated content will be written to the old file.
 
 ## Usage
 
