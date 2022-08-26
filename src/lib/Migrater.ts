@@ -3,13 +3,12 @@
 import fs from 'fs'
 import path from 'path'
 import { IImgInfo, PicGo } from 'picgo'
-import probe from 'probe-image-size'
-import { IMigrateResult } from './interface'
+import { getImageSize } from '../utils'
 
 class Migrater {
   ctx: PicGo
   guiApi: any
-  urlArray: any[]
+  urlArray: string[]
   baseDir: string
   constructor (ctx: PicGo, guiApi: any, filePath: string) {
     this.guiApi = guiApi
@@ -17,7 +16,7 @@ class Migrater {
     this.baseDir = path.dirname(filePath)
   }
 
-  init (urlList: any): void {
+  init (urlList: IStringKeyMap): void {
     this.urlArray = Object.keys(urlList)
   }
 
@@ -64,7 +63,6 @@ class Migrater {
     })
 
     const toUploadImgs = await Promise.all(toUploadURLs).then(imgs => imgs.filter(img => img !== undefined))
-    console.log('toUploadImgs', toUploadImgs)
 
     // upload
     let output = []
@@ -122,7 +120,7 @@ class Migrater {
     if (fs.existsSync(picPath)) {
       const fileName = path.basename(picPath)
       const buffer = fs.readFileSync(picPath)
-      const imgSize = probe.sync(buffer)
+      const imgSize = getImageSize(buffer)
       return {
         buffer,
         fileName,
@@ -140,13 +138,14 @@ class Migrater {
     try {
       const buffer = await this.getPicFromURL(url)
       const fileName = path.basename(url).split('?')[0].split('#')[0]
-      const imgSize = probe.sync(buffer)
+      const imgSize = getImageSize(buffer)
+      console.log(imgSize)
       return {
         buffer,
         fileName,
         width: imgSize.width,
         height: imgSize.height,
-        extname: `.${imgSize.type}`,
+        extname: `.${imgSize.type || 'png'}`,
         origin: url
       }
     } catch (e) {
