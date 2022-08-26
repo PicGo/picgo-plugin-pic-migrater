@@ -15,23 +15,34 @@ class FileHandler {
 
   read (file: string): void {
     if (!fs.existsSync(file) && !(path.extname(file) === '.md')) {
+      this.ctx.log.warn(`${file} is not exists`)
       return
     }
     const content = fs.readFileSync(file, 'utf8')
     this.fileList[file] = content
-    this.getFileUrlContent(file)
+    this.getUrlListFromFileContent(file)
   }
 
-  getFileUrlContent (file: string): void {
-    const urls = this.fileList[file].match(/\!\[.*\]\(.*\)/g)
-    if (urls === null) {
-      this.urlList[file] = {}
-    } else {
-      this.urlList[file] = {}
-      for (const i of urls) {
-        const url = i.match(/\!\[.*\]\((.*?)( ".*")?\)/)[1]
-        this.urlList[file][url] = url
+  getUrlListFromFileContent (file: string): void {
+    const content = this.fileList[file] || ''
+    const markdownURLList = (content.match(/\!\[.*\]\(.*\)/g) || []).map((item: string) => {
+      const res = item.match(/\!\[.*\]\((.*?)( ".*")?\)/)
+      if (res) {
+        return res[1]
       }
+      return null
+    }).filter(item => item)
+    const imageTagURLList = (content.match(/<img.*?(?:>|\/>)/gi) || []).map((item: string) => {
+      const res = item.match(/src=[\'\"]?([^\'\"]*)[\'\"]?/i)
+      if (res) {
+        return res[1]
+      }
+      return null
+    }).filter(item => item)
+    const urls = markdownURLList.concat(imageTagURLList)
+    this.urlList[file] = {}
+    for (const url of urls) {
+      this.urlList[file][url] = url
     }
   }
 

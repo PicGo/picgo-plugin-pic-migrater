@@ -6,7 +6,7 @@
     "sourceType": "module",
     "project": "./tsconfig.json"
   },
-  "ignorePatterns": ["temp.js"],
+  "ignorePatterns": ["test.js"],
   "plugins": ["@typescript-eslint"],
   "extends": ["standard-with-typescript"],
   "rules": {
