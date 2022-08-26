@@ -1,3 +1,19 @@
+# :tada: 1.3.0 (2022-08-26)
+
+
+### :sparkles: Features
+
+* add i18n support ([7f68481](https://github.com/PicGo/picgo-plugin-pic-migrater/commit/7f68481))
+* add oldContentWriteToNewFile option ([1a7eee1](https://github.com/PicGo/picgo-plugin-pic-migrater/commit/1a7eee1))
+* support image tag src migrate ([0e65d56](https://github.com/PicGo/picgo-plugin-pic-migrater/commit/0e65d56)), closes [#45](https://github.com/PicGo/picgo-plugin-pic-migrater/issues/45)
+
+
+### :pencil: Documentation
+
+* update v1.3.0 docs ([11ffa18](https://github.com/PicGo/picgo-plugin-pic-migrater/commit/11ffa18))
+
+
+
 ## :tada: 1.2.3 (2022-08-25)
 
 
