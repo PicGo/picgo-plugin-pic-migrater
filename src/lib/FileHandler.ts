@@ -46,12 +46,18 @@ class FileHandler {
     }
   }
 
-  write (file: string, data: string, newSuffix = '_new'): void {
+  write (file: string, data: string, newSuffix = '_new', oldContentWriteToNewFile = false): void {
     const baseName = path.basename(file, '.md')
     const dirName = path.dirname(file)
     const resultFileName = path.join(dirName, baseName + newSuffix + '.md')
     try {
-      fs.writeFileSync(resultFileName, data, 'utf8')
+      if (!oldContentWriteToNewFile) {
+        fs.writeFileSync(resultFileName, data, 'utf8')
+      } else {
+        const oldContent = this.fileList[file] || ''
+        fs.writeFileSync(resultFileName, oldContent, 'utf8')
+        fs.writeFileSync(file, data, 'utf8')
+      }
       this.ctx.log.success(`Write ${resultFileName} successfully`)
     } catch (e) {
       this.ctx.log.error(e)

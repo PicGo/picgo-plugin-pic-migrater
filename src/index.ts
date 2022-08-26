@@ -43,6 +43,7 @@ const migrateFiles = async (ctx: PicGo, files: string[], guiApi: any = undefined
   checkVersion(ctx, guiApi)
   const $T = T(ctx)
   const newFileSuffix = ctx.getConfig<string>('picgo-plugin-pic-migrater.newFileSuffix')
+  const oldContentWriteToNewFile = !!ctx.getConfig<boolean>('picgo-plugin-pic-migrater.oldContentWriteToNewFile')
   if (guiApi) {
     guiApi.showNotification({
       title: $T('PIC_MIGRATER_PROCESSING'),
@@ -89,7 +90,7 @@ const migrateFiles = async (ctx: PicGo, files: string[], guiApi: any = undefined
       result.urls.forEach((item) => {
         content = replaceAll(content, item.original, item.new)
       })
-      fileHandler.write(file, content, newFileSuffix)
+      fileHandler.write(file, content, newFileSuffix, oldContentWriteToNewFile)
     }
   }
 
@@ -211,6 +212,15 @@ const config = (ctx: PicGo): IPluginConfig[] => {
       },
       type: 'input',
       default: userConfig.exclude || '',
+      required: false
+    },
+    {
+      name: 'oldContentWriteToNewFile',
+      get alias () {
+        return $T('PIC_MIGRATER_CONFIG_OLD_CONTENT_WRITE_TO_NEW_FILE')
+      },
+      type: 'confirm',
+      default: false,
       required: false
     }
   ]
