@@ -11,7 +11,9 @@ picgo.setConfig({
   }
 })
 
-const plugin = PluginMigrater(picgo)
+const plugin = PluginMigrater(picgo);
 
-const res = plugin.migrateFiles(['./test/test.md']) // { total: number, success: number }
-console.log(res)
+(async () => {
+  const res = await plugin.migrateFiles(['./test/test.md']) // { total: number, success: number }
+  console.log(res)
+})();
