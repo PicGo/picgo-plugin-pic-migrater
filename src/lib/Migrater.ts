@@ -110,10 +110,12 @@ class Migrater {
   }
 
   async getPicFromURL (url): Promise<Buffer> {
-    return this.ctx.Request.request({
+    const res = await this.ctx.request({
       url,
-      encoding: null
+      encoding: null,
+      responseType: "arraybuffer",
     })
+    return Buffer.from(res, "utf-8")
   }
 
   async handlePicFromLocal (picPath: string, origin: string): Promise<IImgInfo | undefined> {
@@ -149,6 +151,7 @@ class Migrater {
         origin: url
       }
     } catch (e) {
+      this.ctx.log.error(`handle pic from url ${url} fail: ${JSON.stringify(e)}`)
       return undefined
     }
   }
