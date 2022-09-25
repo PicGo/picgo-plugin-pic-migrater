@@ -109,13 +109,13 @@ class Migrater {
     }
   }
 
-  async getPicFromURL (url): Promise<Buffer> {
+  async getPicFromURL (url: string): Promise<Buffer> {
     const res = await this.ctx.request({
       url,
       encoding: null,
-      responseType: "arraybuffer",
+      responseType: 'arraybuffer'
     })
-    return Buffer.from(res, "utf-8")
+    return res
   }
 
   async handlePicFromLocal (picPath: string, origin: string): Promise<IImgInfo | undefined> {
