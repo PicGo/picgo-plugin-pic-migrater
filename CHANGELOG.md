@@ -1,3 +1,12 @@
+## :tada: 1.3.1 (2022-09-25)
+
+
+### :bug: Bug Fixes
+
+* getPicFromURL file had damaged after core 1.5.0-alpha.9 ([#53](https://github.com/PicGo/picgo-plugin-pic-migrater/issues/53)) ([86874ba](https://github.com/PicGo/picgo-plugin-pic-migrater/commit/86874ba))
+
+
+
 # :tada: 1.3.0 (2022-08-26)
 
 
