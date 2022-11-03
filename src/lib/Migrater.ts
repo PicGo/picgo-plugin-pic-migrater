@@ -3,7 +3,7 @@
 import fs from 'fs'
 import path from 'path'
 import { IImgInfo, PicGo } from 'picgo'
-import { getImageSize } from '../utils'
+import { getImageSize, isUrl, isUrlEncode } from '../utils'
 
 class Migrater {
   ctx: PicGo
@@ -47,11 +47,16 @@ class Migrater {
 
         try {
           let imgInfo: IImgInfo
-          const picPath = this.getLocalPath(url)
-          if (!picPath) {
+          const isUrlPath = isUrl(url)
+          if (isUrlPath) {
             imgInfo = await this.handlePicFromURL(url)
           } else {
-            imgInfo = await this.handlePicFromLocal(picPath, url)
+            const picPath = this.getLocalPath(url)
+            if (picPath) {
+              imgInfo = await this.handlePicFromLocal(picPath, url)
+            } else {
+              imgInfo = undefined
+            }
           }
           resolve(imgInfo)
         } catch (err) {
@@ -99,12 +104,26 @@ class Migrater {
   }
 
   getLocalPath (imgPath: string): string | false {
-    if (!path.isAbsolute(imgPath)) {
-      imgPath = path.join(this.baseDir, imgPath)
+    let localPath = imgPath
+    if (!path.isAbsolute(localPath)) {
+      localPath = path.join(this.baseDir, localPath)
     }
-    if (fs.existsSync(imgPath)) {
-      return imgPath
+    if (fs.existsSync(localPath)) {
+      console.log('1', localPath)
+      return localPath
     } else {
+      // if path is url encode, try decode
+      if (isUrlEncode(imgPath)) {
+        localPath = decodeURI(imgPath)
+        if (!path.isAbsolute(localPath)) {
+          localPath = path.join(this.baseDir, localPath)
+        }
+        if (fs.existsSync(localPath)) {
+          console.log('2', localPath)
+          return localPath
+        }
+      }
+      console.log(localPath, false)
       return false
     }
   }

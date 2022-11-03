@@ -10,4 +10,4 @@
 
 ![](./picgo-logo.png)
 
-<img alt="test" src="./picgo-logo.png">
+<img alt="test" src="./picgo%20logo.png">
