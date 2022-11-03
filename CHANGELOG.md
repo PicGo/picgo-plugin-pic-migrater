@@ -1,3 +1,12 @@
+## :tada: 1.3.2 (2022-11-03)
+
+
+### :bug: Bug Fixes
+
+* local path encode bug ([501d522](https://github.com/PicGo/picgo-plugin-pic-migrater/commit/501d522)), closes [#54](https://github.com/PicGo/picgo-plugin-pic-migrater/issues/54)
+
+
+
 ## :tada: 1.3.1 (2022-09-25)
 
 
