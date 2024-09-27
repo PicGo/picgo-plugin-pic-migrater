@@ -6,14 +6,19 @@ import FileHandler from './lib/FileHandler'
 import Migrater from './lib/Migrater'
 import { compare } from 'compare-versions'
 import { initI18n, T } from './i18n'
+const escapeRegExp = (string: string): string => {
+  return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+}
 
 const replaceAll = (content: string, originText: string, replaceText: string): string => {
   if (originText === replaceText) {
     return content
   }
-  content = content.replace(new RegExp(originText, 'g'), replaceText)
-  return content
+  const escapedOriginText = escapeRegExp(originText)
+  const regex = new RegExp(escapedOriginText, 'g')
+  return content.replace(regex, replaceText)
 }
+
 const checkVersion = (ctx: PicGo, guiApi: any): void => {
   if (guiApi) {
     const picgoVersion = ctx.GUI_VERSION || '1.0.0'
@@ -88,6 +93,8 @@ const migrateFiles = async (ctx: PicGo, files: string[], guiApi: any = undefined
       let content = fileHandler.getFileContent(file)
       // replace content
       result.urls.forEach((item) => {
+        ctx.log.info(`Original: ${item.original}`)
+        ctx.log.info(`New: ${item.new}`)
         content = replaceAll(content, item.original, item.new)
       })
       fileHandler.write(file, content, newFileSuffix, oldContentWriteToNewFile)
