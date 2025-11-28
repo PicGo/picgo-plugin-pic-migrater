@@ -26,8 +26,8 @@ class Migrater {
       'picBed.transformer': 'base64'
     })
     this.ctx.output = [] // a bug before picgo v1.2.2
-    const include: string | null = this.ctx.getConfig('picgo-plugin-pic-migrater.include') || null
-    const exclude: string | null = this.ctx.getConfig('picgo-plugin-pic-migrater.exclude') || null
+    const include: string | null = this.ctx.getConfig('picgo-plugin-pic-migrater.include') ?? 'null'
+    const exclude: string | null = this.ctx.getConfig('picgo-plugin-pic-migrater.exclude') ?? 'null'
     const includesReg = new RegExp(include)
     const excludesReg = new RegExp(exclude)
 
@@ -42,11 +42,11 @@ class Migrater {
     }
 
     const toUploadURLs = this.urlArray.filter(url => ((!include || includesReg.test(url)) && (!exclude || !excludesReg.test(url)))).map(async url => {
-      return await new Promise<IImgInfo>(async (resolve, reject): Promise<void> => {
+      return await new Promise<IImgInfo | undefined>(async (resolve, reject): Promise<void> => {
         result.total += 1
 
         try {
-          let imgInfo: IImgInfo
+          let imgInfo: IImgInfo | undefined
           const isUrlPath = isUrl(url)
           if (isUrlPath) {
             imgInfo = await this.handlePicFromURL(url)
@@ -70,7 +70,7 @@ class Migrater {
     const toUploadImgs = await Promise.all(toUploadURLs).then(imgs => imgs.filter(img => img !== undefined))
 
     // upload
-    let output = []
+    let output: IImgInfo[] = []
     if (toUploadImgs && toUploadImgs.length > 0) {
       if (this.guiApi) {
         output = await this.guiApi.upload(toUploadImgs)
@@ -91,7 +91,7 @@ class Migrater {
     result.urls = output.filter(item => item.imgUrl && item.imgUrl !== item.origin).map(item => {
       return {
         original: item.origin,
-        new: item.imgUrl
+        new: item.imgUrl as string
       }
     })
     result.success = result.urls.length
@@ -166,7 +166,7 @@ class Migrater {
         fileName,
         width: imgSize.width,
         height: imgSize.height,
-        extname: `.${imgSize.type || 'png'}`,
+        extname: `.${imgSize.type ?? 'png'}`,
         origin: url
       }
     } catch (e) {

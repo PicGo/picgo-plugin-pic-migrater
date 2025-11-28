@@ -25,20 +25,20 @@ class FileHandler {
 
   getUrlListFromFileContent (file: string): void {
     const content = this.fileList[file] || ''
-    const markdownURLList = (content.match(/\!\[.*\]\(.*\)/g) || []).map((item: string) => {
+    const markdownURLList = (content.match(/\!\[.*\]\(.*\)/g) ?? []).map((item: string) => {
       const res = item.match(/\!\[.*\]\((.*?)( ".*")?\)/)
       if (res) {
         return res[1]
       }
       return null
-    }).filter(item => item)
-    const imageTagURLList = (content.match(/<img.*?(?:>|\/>)/gi) || []).map((item: string) => {
+    }).filter(item => item) as string[]
+    const imageTagURLList = (content.match(/<img.*?(?:>|\/>)/gi) ?? []).map((item: string) => {
       const res = item.match(/src=[\'\"]?([^\'\"]*)[\'\"]?/i)
       if (res) {
         return res[1]
       }
       return null
-    }).filter(item => item)
+    }).filter(item => item) as string[]
     const urls = markdownURLList.concat(imageTagURLList)
     this.urlList[file] = {}
     for (const url of urls) {

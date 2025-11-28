@@ -16,7 +16,7 @@ const replaceAll = (content: string, originText: string, replaceText: string): s
 }
 const checkVersion = (ctx: PicGo, guiApi: any): void => {
   if (guiApi) {
-    const picgoVersion = ctx.GUI_VERSION || '1.0.0'
+    const picgoVersion = ctx.GUI_VERSION ?? '1.0.0'
     if (compare(picgoVersion, '2.3.0', '<')) {
       ctx.emit('notification', {
         title: 'PicGo version is lower than 2.3.0',
@@ -199,7 +199,7 @@ const config = (ctx: PicGo): IPluginConfig[] => {
         return $T('PIC_MIGRATER_CONFIG_TIPS')
       },
       type: 'input',
-      default: userConfig.include || '',
+      default: userConfig.include ?? '',
       required: false
     },
     {
@@ -211,7 +211,7 @@ const config = (ctx: PicGo): IPluginConfig[] => {
         return $T('PIC_MIGRATER_CONFIG_TIPS')
       },
       type: 'input',
-      default: userConfig.exclude || '',
+      default: userConfig.exclude ?? '',
       required: false
     },
     {
@@ -244,7 +244,7 @@ export = (ctx: PicGo) => {
               return
             }
             files = files.map((item) => path.resolve(item))
-            let inputFiles = []
+            let inputFiles: string[] = []
             for (const filePath of files) {
               // make sure filePath exists
               if (fs.existsSync(filePath)) {

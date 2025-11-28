@@ -7,11 +7,11 @@ interface IImgSizeInfo extends IImgSize {
 
 export const getImageSize = (buffer: Buffer): IImgSizeInfo => {
   try {
-    const size = sizeOf(buffer)
+    const size = sizeOf(buffer as Uint8Array)
     return {
       real: true,
-      width: size.width,
-      height: size.height,
+      width: size.width ?? 0,
+      height: size.height ?? 0,
       type: size.type
     }
   } catch (e) {

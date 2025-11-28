@@ -12,7 +12,8 @@
     "build": "tsc -p .",
     "dev": "tsc -w -p .",
     "cz": "git-cz",
-    "release": "bump-version"
+    "release": "bump-version",
+    "lint": "tsc --noEmit"
   },
   "keywords": [
     "picgo",
@@ -55,7 +56,7 @@
     "eslint-plugin-node": "^11.1.0",
     "eslint-plugin-promise": "^6.0.0",
     "husky": "^2.7.0",
-    "picgo": "1.5.0-alpha.15",
+    "picgo": "1.5.11",
     "typescript": "^4.7.4"
   },
   "dependencies": {
