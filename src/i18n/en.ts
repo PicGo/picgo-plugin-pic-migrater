@@ -1,5 +1,4 @@
 /* eslint-disable no-template-curly-in-string */
-/* eslint-disable comma-dangle */
 export const en: ILocales = {
   PIC_MIGRATER_CHOOSE_FILE: 'Choose File',
   PIC_MIGRATER_CHOOSE_FOLDER: 'Choose Folder',

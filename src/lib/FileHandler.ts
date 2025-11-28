@@ -1,6 +1,6 @@
 /* eslint-disable no-useless-escape */
-import fs from 'fs'
-import path from 'path'
+import fs from 'node:fs'
+import path from 'node:path'
 import { PicGo } from 'picgo'
 
 class FileHandler {

@@ -1,5 +1,4 @@
 /* eslint-disable no-template-curly-in-string */
-/* eslint-disable comma-dangle */
 export const zh = {
   PIC_MIGRATER_CHOOSE_FILE: '选择文件',
   PIC_MIGRATER_CHOOSE_FOLDER: '选择文件夹',

@@ -1,7 +1,7 @@
-import fs from 'fs'
+import fs from 'node:fs'
 import globby from 'globby'
-import path from 'path'
-import { IGuiMenuItem, PicGo, IPluginConfig } from 'picgo'
+import path from 'node:path'
+import type { IGuiMenuItem, PicGo, IPluginConfig } from 'picgo'
 import FileHandler from './lib/FileHandler'
 import Migrater from './lib/Migrater'
 import { compare } from 'compare-versions'
@@ -43,7 +43,7 @@ const migrateFiles = async (ctx: PicGo, files: string[], guiApi: any = undefined
   checkVersion(ctx, guiApi)
   const $T = T(ctx)
   const newFileSuffix = ctx.getConfig<string>('picgo-plugin-pic-migrater.newFileSuffix')
-  const oldContentWriteToNewFile = !!ctx.getConfig<boolean>('picgo-plugin-pic-migrater.oldContentWriteToNewFile')
+  const oldContentWriteToNewFile = !!ctx.getConfig<boolean | undefined>('picgo-plugin-pic-migrater.oldContentWriteToNewFile')
   if (guiApi) {
     guiApi.showNotification({
       title: $T('PIC_MIGRATER_PROCESSING'),
@@ -124,7 +124,7 @@ const guiMenu = (ctx: PicGo): IGuiMenuItem[] => {
           })
         }
         try {
-          let files = await guiApi.showFileExplorer({
+          let files: string[] = await guiApi.showFileExplorer({
             properties: ['openFile', 'multiSelections'],
             filters: [
               {
@@ -159,7 +159,7 @@ const guiMenu = (ctx: PicGo): IGuiMenuItem[] => {
           properties: ['openDirectory']
         })
         if (result) {
-          const sourceDir = result[0]
+          const sourceDir = result[0] as string
           let files = await globby(['**/*.md'], { cwd: sourceDir, dot: true })
           files = files.map((file: string) => path.join(sourceDir, file))
           if (files.length > 0) {
@@ -175,10 +175,8 @@ const guiMenu = (ctx: PicGo): IGuiMenuItem[] => {
 
 const config = (ctx: PicGo): IPluginConfig[] => {
   const $T = T(ctx)
-  let userConfig = ctx.getConfig<IMigraterConfig>('picgo-plugin-pic-migrater')
-  if (!userConfig) {
-    userConfig = {}
-  }
+  let userConfig = ctx.getConfig<IMigraterConfig | undefined>('picgo-plugin-pic-migrater')
+  userConfig ??= {};
   const config = [
     {
       name: 'newFileSuffix',
@@ -237,7 +235,7 @@ export = (ctx: PicGo) => {
           .command('migrate <files...>')
           .description('migrating pictures url from markdown files')
           .action(async (files: string[]) => {
-            const userConfig = ctx.getConfig<IMigraterConfig>('picgo-plugin-pic-migrater')
+            const userConfig = ctx.getConfig<IMigraterConfig | undefined>('picgo-plugin-pic-migrater')
             if (!userConfig) {
               ctx.log.warn('You should configurate this plugin first!')
               ctx.log.info('picgo set plugin pic-migrater')

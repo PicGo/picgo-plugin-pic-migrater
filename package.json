@@ -13,7 +13,7 @@
     "dev": "tsc -w -p .",
     "cz": "git-cz",
     "release": "bump-version",
-    "lint": "tsc --noEmit"
+    "lint": "eslint src && tsc --noEmit"
   },
   "keywords": [
     "picgo",
@@ -42,22 +42,23 @@
   "license": "MIT",
   "devDependencies": {
     "@commitlint/cli": "^7.6.1",
+    "@eslint/eslintrc": "^3.3.1",
     "@picgo/bump-version": "^1.1.2",
-    "@types/node": "18.7.13",
-    "@typescript-eslint/eslint-plugin": "^5.34.0",
-    "@typescript-eslint/parser": "^5.34.0",
+    "@types/node": "24.10.1",
+    "@typescript-eslint/eslint-plugin": "^8.48.0",
+    "@typescript-eslint/parser": "^8.48.0",
     "commitizen": "^3.1.2",
     "conventional-changelog": "^3.1.25",
     "cz-customizable": "5.8.0",
-    "eslint": "^8.22.0",
-    "eslint-config-standard-with-typescript": "^22.0.0",
-    "eslint-plugin-import": "^2.26.0",
-    "eslint-plugin-n": "^15.2.5",
+    "eslint": "^9.39.1",
+    "eslint-config-love": "^134.0.0",
+    "eslint-plugin-import": "^2.32.0",
+    "eslint-plugin-n": "^17.23.1",
     "eslint-plugin-node": "^11.1.0",
-    "eslint-plugin-promise": "^6.0.0",
+    "eslint-plugin-promise": "^7.2.1",
     "husky": "^2.7.0",
     "picgo": "1.5.11",
-    "typescript": "^4.7.4"
+    "typescript": "^5.9.3"
   },
   "dependencies": {
     "compare-versions": "^5.0.0",

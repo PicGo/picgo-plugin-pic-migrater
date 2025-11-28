@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-misused-promises */
 /* eslint-disable no-async-promise-executor */
-import fs from 'fs'
-import path from 'path'
+import fs from 'node:fs'
+import path from 'node:path'
 import { IImgInfo, PicGo } from 'picgo'
 import { getImageSize, isUrl, isUrlEncode } from '../utils'
 

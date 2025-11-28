@@ -27,7 +27,7 @@ export const getImageSize = (buffer: Buffer): IImgSizeInfo => {
 
 export const isUrl = (url: string): boolean => (url.startsWith('http://') || url.startsWith('https://'))
 export const isUrlEncode = (url: string): boolean => {
-  url = url || ''
+  url ||= ''
   try {
     // the whole url encode or decode shold not use encodeURIComponent or decodeURIComponent
     return url !== decodeURI(url)
