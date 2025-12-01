@@ -1,5 +1,6 @@
 const { PicGo } = require('picgo')
 const PluginMigrater = require('./dist/index')
+const assert = require('assert')
 
 const picgo = new PicGo()
 
@@ -11,9 +12,11 @@ picgo.setConfig({
   }
 })
 
-const plugin = PluginMigrater(picgo);
+const plugin = picgo.use(PluginMigrater);
 
 (async () => {
   const res = await plugin.migrateFiles(['./test/test.md']) // { total: number, success: number }
   console.log(res)
+  assert.strictEqual(res.success, 6)
+  assert.strictEqual(res.total, 7)
 })();

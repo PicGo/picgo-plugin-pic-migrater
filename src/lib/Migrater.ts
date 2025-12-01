@@ -3,7 +3,7 @@
 import fs from 'node:fs'
 import path from 'node:path'
 import { IImgInfo, PicGo } from 'picgo'
-import { getImageSize, isUrl, isUrlEncode } from '../utils'
+import { getImageSize, isUrl, isUrlEncode, normalizePath } from '../utils'
 
 class Migrater {
   ctx: PicGo
@@ -88,12 +88,17 @@ class Migrater {
       }
     }
 
-    result.urls = output.filter(item => item.imgUrl && item.imgUrl !== item.origin).map(item => {
-      return {
-        original: item.origin,
-        new: item.imgUrl as string
+    result.urls = output.map((item, index) => {
+      const original = toUploadImgs[index]?.origin ?? item.origin
+      if (!item.imgUrl || !original || item.imgUrl === original) {
+        return null
       }
-    })
+      return {
+        original,
+        new: item.imgUrl
+      }
+    }).filter((item) => item !== null)
+
     result.success = result.urls.length
 
     this.ctx.setConfig({
@@ -104,22 +109,22 @@ class Migrater {
   }
 
   getLocalPath (imgPath: string): string | false {
-    let localPath = imgPath
+    let localPath = normalizePath(imgPath)
     if (!path.isAbsolute(localPath)) {
-      localPath = path.join(this.baseDir, localPath)
+      localPath = normalizePath(path.join(this.baseDir, localPath))
     }
     if (fs.existsSync(localPath)) {
-      console.log('1', localPath)
+      console.log('exist absolute local path', localPath)
       return localPath
     } else {
       // if path is url encode, try decode
       if (isUrlEncode(imgPath)) {
-        localPath = decodeURI(imgPath)
+        localPath = normalizePath(decodeURI(imgPath))
         if (!path.isAbsolute(localPath)) {
-          localPath = path.join(this.baseDir, localPath)
+          localPath = normalizePath(path.join(this.baseDir, localPath))
         }
         if (fs.existsSync(localPath)) {
-          console.log('2', localPath)
+          console.log('exist related local path', localPath)
           return localPath
         }
       }
@@ -156,17 +161,19 @@ class Migrater {
   }
 
   async handlePicFromURL (url: string): Promise<IImgInfo | undefined> {
+    const rawFileName = path.basename(url.split('?')[0].split('#')[0]) || 'image'
     try {
       const buffer = await this.getPicFromURL(url)
-      const fileName = path.basename(url).split('?')[0].split('#')[0]
       const imgSize = getImageSize(buffer)
-      console.log(imgSize)
+      const imgType = (imgSize.type ?? 'png').replace(/^\./, '')
+      const extname = `.${imgType}`
+      const fileName = path.extname(rawFileName) ? rawFileName : `${rawFileName}${extname}`
       return {
         buffer,
         fileName,
         width: imgSize.width,
         height: imgSize.height,
-        extname: `.${imgSize.type ?? 'png'}`,
+        extname,
         origin: url
       }
     } catch (e) {

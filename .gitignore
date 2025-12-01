@@ -5,3 +5,4 @@ yarn-error.log
 temp.js
 package-lock.json
 test/test_new.md
+.serena/

@@ -1,5 +1,6 @@
 import sizeOf from 'image-size'
 import { IImgSize } from 'picgo'
+import path from 'node:path'
 
 interface IImgSizeInfo extends IImgSize {
   type?: string
@@ -42,3 +43,5 @@ export const handleUrlEncode = (url: string): string => {
   }
   return url
 }
+
+export const normalizePath = (p: string): string => path.normalize(p.replace(/\\+/g, '/'))

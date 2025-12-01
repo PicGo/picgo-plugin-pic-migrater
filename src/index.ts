@@ -11,8 +11,7 @@ const replaceAll = (content: string, originText: string, replaceText: string): s
   if (originText === replaceText) {
     return content
   }
-  content = content.replace(new RegExp(originText, 'g'), replaceText)
-  return content
+  return content.split(originText).join(replaceText)
 }
 const checkVersion = (ctx: PicGo, guiApi: any): void => {
   if (guiApi) {
