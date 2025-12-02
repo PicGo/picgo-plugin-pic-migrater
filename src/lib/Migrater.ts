@@ -109,10 +109,7 @@ class Migrater {
   }
 
   getLocalPath (imgPath: string): string | false {
-    let localPath = normalizePath(imgPath)
-    if (!path.isAbsolute(localPath)) {
-      localPath = normalizePath(path.join(this.baseDir, localPath))
-    }
+    let localPath = path.isAbsolute(imgPath) ? imgPath : normalizePath(path.join(this.baseDir, imgPath))
     if (fs.existsSync(localPath)) {
       console.log('exist absolute local path', localPath)
       return localPath
@@ -128,7 +125,7 @@ class Migrater {
           return localPath
         }
       }
-      console.log(localPath, false)
+      this.ctx.log.warn(`file path: ${imgPath} not exist!`)
       return false
     }
   }
