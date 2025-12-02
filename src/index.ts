@@ -236,7 +236,7 @@ export = (ctx: PicGo) => {
           .action(async (files: string[]) => {
             const userConfig = ctx.getConfig<IMigraterConfig | undefined>('picgo-plugin-pic-migrater')
             if (!userConfig) {
-              ctx.log.warn('You should configurate this plugin first!')
+              ctx.log.warn('You should configure this plugin first!')
               ctx.log.info('picgo set plugin pic-migrater')
               return
             }
@@ -262,7 +262,7 @@ export = (ctx: PicGo) => {
           .on('--help', () => {
             console.log(`
               Note:
-              You should configurate this plugin first!
+              You should configure this plugin first!
               picgo set plugin pic-migrater
 
               Examples:
