@@ -1,6 +1,6 @@
 {
   "name": "picgo-plugin-pic-migrater",
-  "version": "1.3.2",
+  "version": "1.3.3",
   "description": "A PicGo plugin for pictures in markdown files migrating from one picBed to another one.",
   "main": "dist/index.js",
   "publishConfig": {

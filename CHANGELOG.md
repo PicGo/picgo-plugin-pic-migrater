@@ -1,3 +1,20 @@
+## :tada: 1.3.3 (2025-12-02)
+
+
+### :bug: Bug Fixes
+
+* migrate bug when url isn't with extname suffix && windows style path ([9268bb3](https://github.com/PicGo/picgo-plugin-pic-migrater/commit/9268bb3)), closes [#5](https://github.com/PicGo/picgo-plugin-pic-migrater/issues/5) [#57](https://github.com/PicGo/picgo-plugin-pic-migrater/issues/57) [#64](https://github.com/PicGo/picgo-plugin-pic-migrater/issues/64) [#65](https://github.com/PicGo/picgo-plugin-pic-migrater/issues/65)
+* ts error ([2f8bc55](https://github.com/PicGo/picgo-plugin-pic-migrater/commit/2f8bc55))
+* types && lint error ([c1d7732](https://github.com/PicGo/picgo-plugin-pic-migrater/commit/c1d7732))
+* windows absolute path bug ([b42ab4d](https://github.com/PicGo/picgo-plugin-pic-migrater/commit/b42ab4d))
+
+
+### :package: Chore
+
+* update workflow deps version ([7d419ad](https://github.com/PicGo/picgo-plugin-pic-migrater/commit/7d419ad))
+
+
+
 ## :tada: 1.3.2 (2022-11-03)
 
 
