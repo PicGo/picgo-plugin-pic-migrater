@@ -145,7 +145,7 @@ picgo.setConfig({
   }
 })
 
-const plugin = PluginMigrater(picgo)
+const plugin = picgo.use(PluginMigrater)
 
 plugin.migrateFiles(['/xxx/yyy.md']) // { total: number, success: number }
 ```
