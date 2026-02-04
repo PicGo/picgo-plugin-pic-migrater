@@ -2,7 +2,7 @@
 
 [![PicGo Convention](https://img.shields.io/badge/picgo-convention-blue.svg?style=flat-square)](https://github.com/PicGo/bump-version)
 
-A PicGo plugin for pictures in markdown files migrating from one picBed to another one.
+A PicGo plugin for images in markdown files migrating from one image host to another one.
 
 [中文说明](https://github.com/PicGo/picgo-plugin-pic-migrater/blob/master/README_CN.md)
 

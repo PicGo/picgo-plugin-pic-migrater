@@ -1,18 +1,23 @@
 name: publish
+permissions:
+  contents: read
+  id-token: write
 on:
   push:
     branches:
       - master
+  workflow_dispatch:
 jobs:
   build:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        node-version: [22]
+        node-version: [25]
     steps:
       - uses: actions/checkout@v2
       - uses: pnpm/action-setup@v4
         with:
+          run_install: false
           version: 10.14.0
       - name: Use Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v6
@@ -24,6 +29,6 @@ jobs:
         run: |
           pnpm install
           pnpm run build
-      - run: npm publish --access public
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+      - name: Unset NODE_AUTH_TOKEN
+        run: unset NODE_AUTH_TOKEN
+      - run: npm publish --access public --provenance
