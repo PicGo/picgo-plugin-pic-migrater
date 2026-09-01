@@ -6,6 +6,7 @@ import FileHandler from './lib/FileHandler'
 import Migrater from './lib/Migrater'
 import { compare } from 'compare-versions'
 import { initI18n, T } from './i18n'
+import { isWikiLink } from './utils'
 
 const replaceAll = (content: string, originText: string, replaceText: string): string => {
   if (originText === replaceText) {
@@ -87,7 +88,10 @@ const migrateFiles = async (ctx: PicGo, files: string[], guiApi: any = undefined
       let content = fileHandler.getFileContent(file)
       // replace content
       result.urls.forEach((item) => {
-        content = replaceAll(content, item.original, item.new)
+        // An Obsidian embed cannot hold a remote URL, so migrating one rewrites it into a standard
+        // markdown image; every other form keeps its syntax and only swaps the URL.
+        const replacement = isWikiLink(item.original) ? `![](${item.new})` : item.new
+        content = replaceAll(content, item.original, replacement)
       })
       fileHandler.write(file, content, newFileSuffix, oldContentWriteToNewFile)
     }

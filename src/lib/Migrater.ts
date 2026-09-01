@@ -2,8 +2,47 @@
 /* eslint-disable no-async-promise-executor */
 import fs from 'node:fs'
 import path from 'node:path'
+import globby from 'globby'
 import { IImgInfo, PicGo } from 'picgo'
-import { getImageSize, isUrl, isUrlEncode, normalizePath } from '../utils'
+import { getImageSize, isUrl, isUrlEncode, normalizePath, stripWikiLinkAlias } from '../utils'
+
+const WIKI_LINK_REG = /^!\[\[(.*?)\]\]$/
+
+/**
+ * Returns the file target of an Obsidian embed, or undefined when the text is not one.
+ */
+const getWikiLinkTarget = (text: string): string | undefined => {
+  const res = text.match(WIKI_LINK_REG)
+  if (!res) {return undefined}
+  return stripWikiLinkAlias(res[1])
+}
+
+/**
+ * Obsidian resolves a short embed like `![[image.png]]` by searching the vault rather than by relative path,
+ * so a plain join against the note's folder is not enough. Index basenames under the note's folder tree once
+ * per folder and reuse it, since a migration usually walks many notes sharing the same root.
+ */
+const basenameIndexCache = new Map<string, Map<string, string>>()
+
+const getBasenameIndex = (dir: string): Map<string, string> => {
+  const cached = basenameIndexCache.get(dir)
+  if (cached) {return cached}
+  const index = new Map<string, string>()
+  try {
+    const files: string[] = globby.sync(['**/*'], { cwd: dir, dot: false, onlyFiles: true })
+    for (const file of files) {
+      const key = path.basename(file).toLowerCase()
+      // First match wins, mirroring Obsidian's behaviour of resolving to a single file.
+      if (!index.has(key)) {
+        index.set(key, normalizePath(path.join(dir, file)))
+      }
+    }
+  } catch (e) {
+    // An unreadable folder just means no index; resolution falls back to the relative path.
+  }
+  basenameIndexCache.set(dir, index)
+  return index
+}
 
 class Migrater {
   ctx: PicGo
@@ -47,16 +86,25 @@ class Migrater {
 
         try {
           let imgInfo: IImgInfo | undefined
-          const isUrlPath = isUrl(url)
+          const wikiLinkTarget = getWikiLinkTarget(url)
+          const target = wikiLinkTarget ?? url
+          const isUrlPath = isUrl(target)
           if (isUrlPath) {
-            imgInfo = await this.handlePicFromURL(url)
+            imgInfo = await this.handlePicFromURL(target)
           } else {
-            const picPath = this.getLocalPath(url)
+            const picPath = wikiLinkTarget !== undefined
+              ? this.getWikiLinkLocalPath(wikiLinkTarget)
+              : this.getLocalPath(target)
             if (picPath) {
               imgInfo = await this.handlePicFromLocal(picPath, url)
             } else {
               imgInfo = undefined
             }
+          }
+          if (imgInfo) {
+            // Keep `origin` as the original text so the replacement in index.ts swaps the whole
+            // `![[...]]` embed, not just the path inside it.
+            imgInfo.origin = url
           }
           resolve(imgInfo)
         } catch (err) {
@@ -106,6 +154,23 @@ class Migrater {
     })
 
     return result
+  }
+
+  /**
+   * Resolves an Obsidian embed target: try it as a path relative to the note first, then fall back to a
+   * vault-style basename lookup under the note's folder.
+   */
+  getWikiLinkLocalPath (target: string): string | false {
+    const relative = normalizePath(path.isAbsolute(target) ? target : path.join(this.baseDir, target))
+    if (fs.existsSync(relative)) {
+      return relative
+    }
+    const match = getBasenameIndex(this.baseDir).get(path.basename(target).toLowerCase())
+    if (match && fs.existsSync(match)) {
+      return match
+    }
+    this.ctx.log.warn(`wiki link target: ${target} not exist!`)
+    return false
   }
 
   getLocalPath (imgPath: string): string | false {

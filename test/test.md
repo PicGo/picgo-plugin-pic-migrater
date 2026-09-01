@@ -18,3 +18,15 @@ Hello. How are you?
 ![](.\picgo-logo.png)
 
 <img alt="test" src="./picgo%20logo.png">
+
+### obsidian wiki link
+
+![[picgo-logo.png]]
+
+![[Pasted image 20240101.png|300]]
+
+<!-- note embeds and plain links must be left alone -->
+
+![[Some note#heading]]
+
+[[Some note]]
