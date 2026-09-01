@@ -1,3 +1,39 @@
+# :tada: 1.4.0 (2026-09-01)
+
+
+### :sparkles: Features
+
+* support obsidian wiki link image embeds ([#67](https://github.com/PicGo/picgo-plugin-pic-migrater/issues/67)) ([2336f1b](https://github.com/PicGo/picgo-plugin-pic-migrater/commit/2336f1b))
+
+
+### :bug: Bug Fixes
+
+* action bug ([9766b83](https://github.com/PicGo/picgo-plugin-pic-migrater/commit/9766b83))
+* migrate nothing when include/exclude are unset ([#66](https://github.com/PicGo/picgo-plugin-pic-migrater/issues/66)) ([7fbe24b](https://github.com/PicGo/picgo-plugin-pic-migrater/commit/7fbe24b))
+* typo ([c4ae7d5](https://github.com/PicGo/picgo-plugin-pic-migrater/commit/c4ae7d5))
+
+
+### :white_check_mark: Tests
+
+* run the suite offline with a stub uploader ([02b1ddb](https://github.com/PicGo/picgo-plugin-pic-migrater/commit/02b1ddb))
+
+
+### :arrow_up: Dependencies Upgrade
+
+* bump-version to 3.0.0 ([7f59621](https://github.com/PicGo/picgo-plugin-pic-migrater/commit/7f59621))
+
+
+### :package: Chore
+
+* update actions ([cd8d622](https://github.com/PicGo/picgo-plugin-pic-migrater/commit/cd8d622))
+
+
+### :pencil: Documentation
+
+* update docs for picgo.use ([28e962d](https://github.com/PicGo/picgo-plugin-pic-migrater/commit/28e962d))
+
+
+
 ## :tada: 1.3.3 (2025-12-02)
 
 
