@@ -26,8 +26,10 @@ class Migrater {
       'picBed.transformer': 'base64'
     })
     this.ctx.output = [] // a bug before picgo v1.2.2
-    const include: string | null = this.ctx.getConfig('picgo-plugin-pic-migrater.include') ?? 'null'
-    const exclude: string | null = this.ctx.getConfig('picgo-plugin-pic-migrater.exclude') ?? 'null'
+    // Fall back to an empty string, not a placeholder: the filter below treats an empty include/exclude as "no filter",
+    // so a non-empty fallback would be compiled into a regex and silently reject every URL.
+    const include: string = this.ctx.getConfig('picgo-plugin-pic-migrater.include') ?? ''
+    const exclude: string = this.ctx.getConfig('picgo-plugin-pic-migrater.exclude') ?? ''
     const includesReg = new RegExp(include)
     const excludesReg = new RegExp(exclude)
 
