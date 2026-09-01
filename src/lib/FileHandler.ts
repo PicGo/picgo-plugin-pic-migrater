@@ -2,6 +2,7 @@
 import fs from 'node:fs'
 import path from 'node:path'
 import { PicGo } from 'picgo'
+import { isImagePath, stripWikiLinkAlias } from '../utils'
 
 class FileHandler {
   ctx: PicGo
@@ -39,7 +40,15 @@ class FileHandler {
       }
       return null
     }).filter(item => item) as string[]
-    const urls = markdownURLList.concat(imageTagURLList)
+    // Obsidian-style embeds: `![[image.png]]`, optionally with `|alt|size` display options.
+    // The whole `![[...]]` is kept as the key because migrating it rewrites the embed into `![](url)`,
+    // not just the path inside it.
+    const wikiLinkList = (content.match(/!\[\[.*?\]\]/g) ?? []).filter((item: string) => {
+      const res = item.match(/!\[\[(.*?)\]\]/)
+      if (!res) {return false}
+      return isImagePath(stripWikiLinkAlias(res[1]))
+    })
+    const urls = markdownURLList.concat(imageTagURLList).concat(wikiLinkList)
     this.urlList[file] = {}
     for (const url of urls) {
       this.urlList[file][url] = url

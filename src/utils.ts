@@ -45,3 +45,20 @@ export const handleUrlEncode = (url: string): string => {
 }
 
 export const normalizePath = (p: string): string => path.normalize(p.replace(/\\+/g, '/'))
+
+const IMAGE_EXT_REG = /\.(png|jpe?g|gif|bmp|webp|avif|svg|tiff?|ico)$/i
+
+/**
+ * Obsidian embeds any file with `![[...]]`, so a target is only worth migrating when it points at an image.
+ * Note embeds like `![[Some note]]` must be left alone.
+ */
+export const isImagePath = (target: string): boolean => IMAGE_EXT_REG.test(target.split(/[?#]/)[0])
+
+/**
+ * `![[image.png|alt|300]]` carries display options after the first pipe; only the leading part is the file target.
+ */
+export const stripWikiLinkAlias = (target: string): string => target.split('|')[0].trim()
+
+export const escapeRegExp = (str: string): string => str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+
+export const isWikiLink = (text: string): boolean => /^!\[\[.*?\]\]$/.test(text)

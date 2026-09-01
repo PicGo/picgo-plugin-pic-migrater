@@ -17,6 +17,6 @@ const plugin = picgo.use(PluginMigrater);
 (async () => {
   const res = await plugin.migrateFiles(['./test/test.md']) // { total: number, success: number }
   console.log(res)
-  assert.strictEqual(res.success, 6)
-  assert.strictEqual(res.total, 7)
+  assert.strictEqual(res.success, 8)
+  assert.strictEqual(res.total, 9)
 })();
