@@ -1,3 +1,22 @@
+# :tada: 2.0.0 (2026-10-22)
+
+
+### :sparkles: Features
+
+* support PicGo 3 uploads ([9345396](https://github.com/PicGo/picgo-plugin-pic-migrater/commit/9345396))
+
+
+### :bug: Bug Fixes
+
+* distinguish include and exclude prompts ([0fc7c9f](https://github.com/PicGo/picgo-plugin-pic-migrater/commit/0fc7c9f)), closes [#68](https://github.com/PicGo/picgo-plugin-pic-migrater/issues/68)
+
+
+### BREAKING CHANGES
+
+* require PicGo GUI or Core 3.0.0+ and Node.js 20.19.0+.
+
+
+
 # :tada: 1.4.0 (2026-09-01)
 
 
