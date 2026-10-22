@@ -18,5 +18,7 @@ export const en: ILocales = {
   PIC_MIGRATER_CONFIG_EXCLUDE: 'Only exclude',
   PIC_MIGRATER_CONFIG_OLD_CONTENT_WRITE_TO_NEW_FILE: 'Old content write to new file',
 
-  PIC_MIGRATER_CONFIG_TIPS: 'Please enter the path or URL'
+  PIC_MIGRATER_CONFIG_TIPS: 'Please enter the path or URL',
+  PIC_MIGRATER_CONFIG_INCLUDE_TIPS: 'include: Enter a regular expression to include image paths or URLs (leave empty for no include filter)',
+  PIC_MIGRATER_CONFIG_EXCLUDE_TIPS: 'exclude: Enter a regular expression to exclude image paths or URLs (leave empty to exclude none)'
 }

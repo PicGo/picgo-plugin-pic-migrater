@@ -199,7 +199,7 @@ const config = (ctx: IPicGo): IPluginConfig[] => {
         return $T('PIC_MIGRATER_CONFIG_INCLUDE')
       },
       get message () {
-        return $T('PIC_MIGRATER_CONFIG_TIPS')
+        return $T('PIC_MIGRATER_CONFIG_INCLUDE_TIPS')
       },
       type: 'input',
       default: userConfig.include ?? '',
@@ -211,7 +211,7 @@ const config = (ctx: IPicGo): IPluginConfig[] => {
         return $T('PIC_MIGRATER_CONFIG_EXCLUDE')
       },
       get message () {
-        return $T('PIC_MIGRATER_CONFIG_TIPS')
+        return $T('PIC_MIGRATER_CONFIG_EXCLUDE_TIPS')
       },
       type: 'input',
       default: userConfig.exclude ?? '',
