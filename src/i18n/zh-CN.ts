@@ -18,7 +18,9 @@ export const zh = {
   PIC_MIGRATER_CONFIG_EXCLUDE: '不包含',
   PIC_MIGRATER_CONFIG_OLD_CONTENT_WRITE_TO_NEW_FILE: '旧内容写入新文件',
 
-  PIC_MIGRATER_CONFIG_TIPS: '请输入路径或者URL'
+  PIC_MIGRATER_CONFIG_TIPS: '请输入路径或者URL',
+  PIC_MIGRATER_CONFIG_INCLUDE_TIPS: 'include：请输入匹配待包含图片路径或 URL 的正则表达式（留空表示不限制包含范围）',
+  PIC_MIGRATER_CONFIG_EXCLUDE_TIPS: 'exclude：请输入匹配待排除图片路径或 URL 的正则表达式（留空表示不排除）'
 }
 
 export type ILocales = typeof zh
