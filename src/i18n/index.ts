@@ -1,7 +1,7 @@
-import { PicGo } from 'picgo'
+import type { IPicGo } from 'picgo'
 import { zh } from './zh-CN'
 import { en } from './en'
-export const initI18n = (ctx: PicGo): void => {
+export const initI18n = (ctx: IPicGo): void => {
   // init i18n
   if (ctx?.i18n?.addLocale) {
     ctx.i18n.addLocale('zh-CN', zh)
@@ -9,7 +9,7 @@ export const initI18n = (ctx: PicGo): void => {
   }
 }
 
-export const T = (ctx: PicGo) => (key: ILocalesKey, args: any = {}) => {
+export const T = (ctx: IPicGo) => (key: ILocalesKey, args: any = {}) => {
   if (ctx?.i18n?.translate) {
     return ctx.i18n.translate<ILocalesKey>(key, args) || zh[key]
   }

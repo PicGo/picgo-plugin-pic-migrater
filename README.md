@@ -36,7 +36,9 @@ if you choose `imgur` as your migrated picBed, after migrating:
 
 `picgo-plugin-pic-migrater <= 1.2.2` requires PicGo-GUI version `2.0.2 ~ 2.2.0`, PicGo-Cli version `1.4.0 ~ 1.5.0-`.
 
-`picgo-plugin-pic-migrater > 1.2.2` requires PicGo-GUI version `2.3.0 ~ latest beta`, PicGo-Cli version `1.5.0-alpha.1 ~ latest alpha`.
+`picgo-plugin-pic-migrater >= 1.2.3 < 2.0.0` supports PicGo-GUI 2.3.x and PicGo-CLI 1.5.x.
+
+`picgo-plugin-pic-migrater >= 2.0.0` requires PicGo-GUI or PicGo-Core 3.0.0 or above. CLI and Node.js users also need Node.js 20.19.0 or above. Users of older PicGo versions should keep using plugin 1.4.0.
 
 ## Installation
 

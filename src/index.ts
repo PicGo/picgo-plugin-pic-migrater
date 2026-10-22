@@ -1,7 +1,7 @@
 import fs from 'node:fs'
 import globby from 'globby'
 import path from 'node:path'
-import type { IGuiMenuItem, PicGo, IPluginConfig } from 'picgo'
+import type { IGuiMenuItem, IPicGo, IPluginConfig } from 'picgo'
 import FileHandler from './lib/FileHandler'
 import Migrater from './lib/Migrater'
 import { compare } from 'compare-versions'
@@ -14,29 +14,29 @@ const replaceAll = (content: string, originText: string, replaceText: string): s
   }
   return content.split(originText).join(replaceText)
 }
-const checkVersion = (ctx: PicGo, guiApi: any): void => {
+const checkVersion = (ctx: IPicGo, guiApi: any): void => {
   if (guiApi) {
     const picgoVersion = ctx.GUI_VERSION ?? '1.0.0'
-    if (compare(picgoVersion, '2.3.0', '<')) {
+    if (compare(picgoVersion, '3.0.0', '<')) {
       ctx.emit('notification', {
-        title: 'PicGo version is lower than 2.3.0',
-        body: 'please upgrade PicGo version'
+        title: 'PicGo version is lower than 3.0.0',
+        body: 'please upgrade PicGo to 3.0.0 or above'
       })
-      throw Error('[pic-migrater] picgo version is lower than 2.3.0, some features will not work, please upgrade PicGo version')
+      throw Error('[pic-migrater] PicGo version is lower than 3.0.0, please upgrade PicGo')
     }
   } else {
     const picgoVersion = ctx.VERSION || '1.0.0'
-    if (compare(picgoVersion, '1.5.0-alpha.1', '<')) {
+    if (compare(picgoVersion, '3.0.0', '<')) {
       ctx.emit('notification', {
-        title: 'PicGo-Core version is lower than 1.5.0-alpha.1',
-        body: 'please upgrade PicGo-Core version or PicGo version'
+        title: 'PicGo-Core version is lower than 3.0.0',
+        body: 'please upgrade PicGo-Core to 3.0.0 or above'
       })
-      throw Error('[pic-migrater] picgo-core version is lower than 1.5.0, some features will not work, please upgrade PicGo-Core version')
+      throw Error('[pic-migrater] PicGo-Core version is lower than 3.0.0, please upgrade PicGo-Core')
     }
   }
 }
 
-const migrateFiles = async (ctx: PicGo, files: string[], guiApi: any = undefined): Promise<{
+const migrateFiles = async (ctx: IPicGo, files: string[], guiApi: any = undefined): Promise<{
   total: number
   success: number
 }> => {
@@ -87,7 +87,9 @@ const migrateFiles = async (ctx: PicGo, files: string[], guiApi: any = undefined
     } else {
       let content = fileHandler.getFileContent(file)
       // replace content
-      result.urls.forEach((item) => {
+      // Replace complete wiki embeds before a plain path can alter their contents.
+      const replacements = result.urls.sort((a, b) => Number(isWikiLink(b.original)) - Number(isWikiLink(a.original)))
+      replacements.forEach((item) => {
         // An Obsidian embed cannot hold a remote URL, so migrating one rewrites it into a standard
         // markdown image; every other form keeps its syntax and only swaps the URL.
         const replacement = isWikiLink(item.original) ? `![](${item.new})` : item.new
@@ -113,13 +115,13 @@ const migrateFiles = async (ctx: PicGo, files: string[], guiApi: any = undefined
   }
 }
 
-const guiMenu = (ctx: PicGo): IGuiMenuItem[] => {
+const guiMenu = (ctx: IPicGo): IGuiMenuItem[] => {
   const $T = T(ctx)
   const userConfig = ctx.getConfig<IMigraterConfig>('picgo-plugin-pic-migrater')
   return [
     {
       label: $T('PIC_MIGRATER_CHOOSE_FILE'),
-      async handle (ctx: PicGo, guiApi: any) {
+      async handle (ctx: IPicGo, guiApi: any) {
         if (!userConfig) {
           return guiApi.showNotification({
             title: $T('PIC_MIGRATER_CONFIG_TIP_TITLE'),
@@ -145,13 +147,13 @@ const guiMenu = (ctx: PicGo): IGuiMenuItem[] => {
             return false
           }
         } catch (e) {
-          ctx.log.error(e)
+          ctx.log.error(e as Error)
         }
       }
     },
     {
       label: $T('PIC_MIGRATER_CHOOSE_FOLDER'),
-      async handle (ctx: PicGo, guiApi: any) {
+      async handle (ctx: IPicGo, guiApi: any) {
         if (!userConfig) {
           return guiApi.showNotification({
             title: $T('PIC_MIGRATER_CONFIG_TIP_TITLE'),
@@ -176,7 +178,7 @@ const guiMenu = (ctx: PicGo): IGuiMenuItem[] => {
   ]
 }
 
-const config = (ctx: PicGo): IPluginConfig[] => {
+const config = (ctx: IPicGo): IPluginConfig[] => {
   const $T = T(ctx)
   let userConfig = ctx.getConfig<IMigraterConfig | undefined>('picgo-plugin-pic-migrater')
   userConfig ??= {};
@@ -229,11 +231,11 @@ const config = (ctx: PicGo): IPluginConfig[] => {
   return config
 }
 
-export = (ctx: PicGo) => {
+export = (ctx: IPicGo) => {
   initI18n(ctx)
   const register = (): void => {
     ctx.cmd.register('migrate', {
-      handle (ctx: PicGo) {
+      handle (ctx: IPicGo) {
         ctx.cmd.program
           .command('migrate <files...>')
           .description('migrating pictures url from markdown files')
