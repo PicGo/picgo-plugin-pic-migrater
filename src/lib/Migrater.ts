@@ -1,10 +1,8 @@
-/* eslint-disable @typescript-eslint/no-misused-promises */
-/* eslint-disable no-async-promise-executor */
 import fs from 'node:fs'
 import path from 'node:path'
 import globby from 'globby'
-import { IImgInfo, PicGo } from 'picgo'
-import { getImageSize, isUrl, isUrlEncode, normalizePath, stripWikiLinkAlias } from '../utils'
+import type { IImgInfo, IPicGo } from 'picgo'
+import { isUrl, isUrlEncode, normalizePath, stripWikiLinkAlias } from '../utils'
 
 const WIKI_LINK_REG = /^!\[\[(.*?)\]\]$/
 
@@ -44,15 +42,19 @@ const getBasenameIndex = (dir: string): Map<string, string> => {
   return index
 }
 
+interface IGuiUploader {
+  upload: (inputs: string[]) => Promise<IImgInfo[]>
+}
+
 class Migrater {
-  ctx: PicGo
-  guiApi: any
-  urlArray: string[]
+  ctx: IPicGo
+  guiApi: IGuiUploader | undefined
+  urlArray: string[] = []
   baseDir: string
-  constructor (ctx: PicGo, guiApi: any, filePath: string) {
+  constructor (ctx: IPicGo, guiApi: IGuiUploader | undefined, filePath: string) {
     this.guiApi = guiApi
     this.ctx = ctx
-    this.baseDir = path.dirname(filePath)
+    this.baseDir = path.dirname(path.resolve(filePath))
   }
 
   init (urlList: IStringKeyMap): void {
@@ -60,102 +62,77 @@ class Migrater {
   }
 
   async migrate (): Promise<IMigrateResult> {
-    const originTransformer = this.ctx.getConfig('picBed.transformer')
-    this.ctx.setConfig({
-      'picBed.transformer': 'base64'
-    })
-    this.ctx.output = [] // a bug before picgo v1.2.2
-    // Fall back to an empty string, not a placeholder: the filter below treats an empty include/exclude as "no filter",
-    // so a non-empty fallback would be compiled into a regex and silently reject every URL.
     const include: string = this.ctx.getConfig('picgo-plugin-pic-migrater.include') ?? ''
     const exclude: string = this.ctx.getConfig('picgo-plugin-pic-migrater.exclude') ?? ''
     const includesReg = new RegExp(include)
     const excludesReg = new RegExp(exclude)
+    const urls = this.urlArray.filter(url => ((!include || includesReg.test(url)) && (!exclude || !excludesReg.test(url))))
+    const result: IMigrateResult = { urls: [], success: 0, total: urls.length }
 
-    const result: IMigrateResult = {
-      urls: [],
-      success: 0,
-      total: 0
-    }
+    const originalsByInput = this.getUploadInputs(urls)
+    if (originalsByInput.size === 0) {return result}
 
-    if (!this.urlArray || this.urlArray.length === 0) {
-      return result
-    }
-
-    const toUploadURLs = this.urlArray.filter(url => ((!include || includesReg.test(url)) && (!exclude || !excludesReg.test(url)))).map(async url => {
-      return await new Promise<IImgInfo | undefined>(async (resolve, reject): Promise<void> => {
-        result.total += 1
-
-        try {
-          let imgInfo: IImgInfo | undefined
-          const wikiLinkTarget = getWikiLinkTarget(url)
-          const target = wikiLinkTarget ?? url
-          const isUrlPath = isUrl(target)
-          if (isUrlPath) {
-            imgInfo = await this.handlePicFromURL(target)
-          } else {
-            const picPath = wikiLinkTarget !== undefined
-              ? this.getWikiLinkLocalPath(wikiLinkTarget)
-              : this.getLocalPath(target)
-            if (picPath) {
-              imgInfo = await this.handlePicFromLocal(picPath, url)
-            } else {
-              imgInfo = undefined
-            }
-          }
-          if (imgInfo) {
-            // Keep `origin` as the original text so the replacement in index.ts swaps the whole
-            // `![[...]]` embed, not just the path inside it.
-            imgInfo.origin = url
-          }
-          resolve(imgInfo)
-        } catch (err) {
-          // dont reject
-          resolve(undefined)
-          this.ctx.log.error(err)
-        }
-      })
-    })
-
-    const toUploadImgs = await Promise.all(toUploadURLs).then(imgs => imgs.filter(img => img !== undefined))
-
-    // upload
-    let output: IImgInfo[] = []
-    if (toUploadImgs && toUploadImgs.length > 0) {
+    const originTransformer = this.ctx.getConfig<string | undefined>('picBed.transformer')
+    this.ctx.setConfig({ 'picBed.transformer': 'path' })
+    this.ctx.output = []
+    try {
+      const inputs = Array.from(originalsByInput.keys())
+      let output: IImgInfo[] = []
       if (this.guiApi) {
-        output = await this.guiApi.upload(toUploadImgs)
+        output = await this.guiApi.upload(inputs)
       } else {
         try {
-          const res = await this.ctx.upload(toUploadImgs)
-          if (Array.isArray(res)) {
-            output = res
-          }
+          const uploaded = await this.ctx.upload(inputs)
+          if (Array.isArray(uploaded)) {output = uploaded}
         } catch (e) {
-          // fake output
-          this.ctx.log.error(e)
+          this.ctx.log.error(e as Error)
           output = this.ctx.output
         }
       }
+
+      result.urls = this.getReplacements(output, originalsByInput)
+      result.success = result.urls.length
+      return result
+    } finally {
+      this.ctx.setConfig({ 'picBed.transformer': originTransformer })
     }
+  }
 
-    result.urls = output.map((item, index) => {
-      const original = toUploadImgs[index]?.origin ?? item.origin
-      if (!item.imgUrl || !original || item.imgUrl === original) {
-        return null
+  private getUploadInputs (urls: string[]): Map<string, string[]> {
+    // Several Markdown spellings can resolve to one input. Core records that input
+    // in origin; array positions are unreliable after failed uploads are filtered.
+    const originalsByInput = new Map<string, string[]>()
+    for (const original of urls) {
+      try {
+        const wikiTarget = getWikiLinkTarget(original)
+        const target = wikiTarget ?? original
+        const input = isUrl(target)
+          ? target
+          : wikiTarget !== undefined ? this.getWikiLinkLocalPath(target) : this.getLocalPath(target)
+        if (!input) {continue}
+        const originals = originalsByInput.get(input) ?? []
+        originals.push(original)
+        originalsByInput.set(input, originals)
+      } catch (e) {
+        this.ctx.log.error(e as Error)
       }
-      return {
-        original,
-        new: item.imgUrl
+    }
+    return originalsByInput
+  }
+
+  private getReplacements (output: IImgInfo[], originalsByInput: Map<string, string[]>): IMigrateResult['urls'] {
+    const replacements: IMigrateResult['urls'] = []
+    const replaced = new Set<string>()
+    for (const item of output) {
+      if (!item.imgUrl || !item.origin) {continue}
+      const originals = originalsByInput.get(item.origin) ?? []
+      for (const original of originals) {
+        if (replaced.has(original) || item.imgUrl === original) {continue}
+        replacements.push({ original, new: item.imgUrl })
+        replaced.add(original)
       }
-    }).filter((item) => item !== null)
-
-    result.success = result.urls.length
-
-    this.ctx.setConfig({
-      'picBed.transformer': originTransformer // for GUI reset config
-    })
-
-    return result
+    }
+    return replacements
   }
 
   /**
@@ -178,7 +155,6 @@ class Migrater {
   getLocalPath (imgPath: string): string | false {
     let localPath = path.isAbsolute(imgPath) ? imgPath : normalizePath(path.join(this.baseDir, imgPath))
     if (fs.existsSync(localPath)) {
-      console.log('exist absolute local path', localPath)
       return localPath
     } else {
       // if path is url encode, try decode
@@ -188,7 +164,6 @@ class Migrater {
           localPath = normalizePath(path.join(this.baseDir, localPath))
         }
         if (fs.existsSync(localPath)) {
-          console.log('exist related local path', localPath)
           return localPath
         }
       }
@@ -197,54 +172,6 @@ class Migrater {
     }
   }
 
-  async getPicFromURL (url: string): Promise<Buffer> {
-    const res = await this.ctx.request({
-      url,
-      encoding: null,
-      responseType: 'arraybuffer'
-    })
-    return res
-  }
-
-  async handlePicFromLocal (picPath: string, origin: string): Promise<IImgInfo | undefined> {
-    if (fs.existsSync(picPath)) {
-      const fileName = path.basename(picPath)
-      const buffer = fs.readFileSync(picPath)
-      const imgSize = getImageSize(buffer)
-      return {
-        buffer,
-        fileName,
-        width: imgSize.width,
-        height: imgSize.height,
-        extname: path.extname(picPath),
-        origin
-      }
-    } else {
-      return undefined
-    }
-  }
-
-  async handlePicFromURL (url: string): Promise<IImgInfo | undefined> {
-    const rawFileName = path.basename(url.split('?')[0].split('#')[0]) || 'image'
-    try {
-      const buffer = await this.getPicFromURL(url)
-      const imgSize = getImageSize(buffer)
-      const imgType = (imgSize.type ?? 'png').replace(/^\./, '')
-      const extname = `.${imgType}`
-      const fileName = path.extname(rawFileName) ? rawFileName : `${rawFileName}${extname}`
-      return {
-        buffer,
-        fileName,
-        width: imgSize.width,
-        height: imgSize.height,
-        extname,
-        origin: url
-      }
-    } catch (e) {
-      this.ctx.log.error(`handle pic from url ${url} fail: ${JSON.stringify(e)}`)
-      return undefined
-    }
-  }
 }
 
 export default Migrater

@@ -34,7 +34,9 @@
 
 `picgo-plugin-pic-migrater <= 1.2.2` 需要 PicGo-GUI 版本 `2.0.2 ~ 2.2.0, PicGo-Cli 版本 1.4.0 ~ 1.5.0-`.
 
-`picgo-plugin-pic-migrater > 1.2.2` 需要 PicGo-GUI 版本 `2.3.0 ~ 目前最新开发版`, PicGo-Cli 版本 `1.5.0-alpha.1 ~ 目前最新alpha版本`.
+`picgo-plugin-pic-migrater >= 1.2.3 < 2.0.0` 支持 PicGo-GUI 2.3.x 和 PicGo-CLI 1.5.x。
+
+`picgo-plugin-pic-migrater >= 2.0.0` 需要 PicGo-GUI 或 PicGo-Core 3.0.0 及以上版本。CLI 和 Node.js 项目还需要 Node.js 20.19.0 及以上版本。使用旧版 PicGo 的用户请继续使用插件 1.4.0。
 
 ## 安装
 

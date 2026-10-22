@@ -61,7 +61,7 @@
     "eslint-plugin-node": "^11.1.0",
     "eslint-plugin-promise": "^7.2.1",
     "husky": "^2.7.0",
-    "picgo": "1.5.11",
+    "picgo": "3.2.0",
     "typescript": "^5.9.3"
   },
   "dependencies": {
@@ -70,6 +70,6 @@
     "image-size": "^1.0.2"
   },
   "engines": {
-    "node": ">=14.13.1"
+    "node": ">=20.19.0"
   }
 }

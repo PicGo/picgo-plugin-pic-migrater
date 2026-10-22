@@ -1,14 +1,14 @@
 /* eslint-disable no-useless-escape */
 import fs from 'node:fs'
 import path from 'node:path'
-import { PicGo } from 'picgo'
+import type { IPicGo } from 'picgo'
 import { isImagePath, stripWikiLinkAlias } from '../utils'
 
 class FileHandler {
-  ctx: PicGo
+  ctx: IPicGo
   fileList: IFileList
   urlList: IURLList
-  constructor (ctx: PicGo) {
+  constructor (ctx: IPicGo) {
     this.ctx = ctx
     this.fileList = {}
     this.urlList = {}
@@ -69,7 +69,7 @@ class FileHandler {
       }
       this.ctx.log.success(`Write ${resultFileName} successfully`)
     } catch (e) {
-      this.ctx.log.error(e)
+      this.ctx.log.error(e as Error)
     }
   }
 
